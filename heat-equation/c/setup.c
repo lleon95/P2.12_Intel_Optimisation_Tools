@@ -273,10 +273,10 @@ void parallel_setup(parallel_data *parallel, int nx, int ny)
     offsets[0] = 1;
     offsets[1] = 1;
     if (coords[0] == 0) {
-       offsets[0] -= 1;
+       offsets[0] = 0;
     }
     if (coords[1] == 0) {
-       offsets[1] -= 1;
+       offsets[1] = 0;
     }
 
     MPI_Type_create_subarray(2, sizes, subsizes, offsets, MPI_ORDER_C,
