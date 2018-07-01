@@ -4,7 +4,9 @@ Write a program that sends the highlighted elements of a 2D array
 using user defined datatypes from one MPI task to another. Note the
 different assignments for C and Fortran, and remember that C stores
 arrays in a row-major order and Fortran in a column-major order. You can
-start from skeleton codes in [C](./c) or [Fortran](./fortran)
+start from skeleton codes in [C](./c), [Fortran](./fortran) or
+[Python](./python). For Python use the C-patterns in a) and b) (`Note`: no
+Python solutions are provided for c) and d) )
 
 a) 
 
