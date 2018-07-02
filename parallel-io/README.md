@@ -1,4 +1,4 @@
-## Parallel I/O with Posix
+## Parallel I/O
 
 a) Write data from all MPI tasks to a single file using the spokesman
 strategy. Gather data to a single MPI task and write it to a file. The
