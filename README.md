@@ -16,25 +16,25 @@ provided.
 ## Exercises
 
  - [Hello world](hello-world) Simplest possible MPI program (C, Fortran and 
-   Python versions). Level: *basic*
+   Python versions). Level: **basic**
  - [Message exchange](message-exchange) Simple point-to-point communication 
-   (C, Fortran and Python versions). Level: *basic*
+   (C, Fortran and Python versions). Level: **basic**
  - [Message chain](message-chain) Point-to-point communication in one
    dimensional aperiodic chain. (C, Fortran and Python versions). 
-   Level: *intermediate*
+   Level: **intermediate**
  - [Collective communciation](collectives) Basic collective communication
-   patterns (C, Fortran and Python versions). Level: *basic/intermediate*
+   patterns (C, Fortran and Python versions). Level: **basic/intermediate**
  - [Parallel I/O](parallel-io) Simple parallel I/O using Posix calls and 
-   MPI I/O (C and Fortran versions). Level: *basic/intermediate*
+   MPI I/O (C and Fortran versions). Level: **basic/intermediate**
  - [User defined datatypes](datatypes) Communication of non-uniform data using
    user defined datatypes (C, Fortran and Python versions). 
-   Level: *intermediate/advanced*
+   Level: **intermediate/advanced**
 
 ## Examples
  - [Heat equation](heat-equation) A two dimensional heat equation solver which
  is parallelized with MPI. The code features non-blocking point-to-point
  communication, user defined datatypes, and parallel I/O with MPI I/O
- (C, Fortran and Python versions). Level: *advanced* 
+ (C, Fortran and Python versions). Level: **advanced** 
 
 ## How to contribute
 

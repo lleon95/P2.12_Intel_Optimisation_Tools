@@ -32,9 +32,9 @@ tasks (e.g. 2, 4, 8, 16, ...). Can you explain the differences to case a)?
  c) Try to simplify the code by employing the `MPI_PROC_NULL` in treating the
  special cases of the first and last task in the chain.
 
- d) Rewrite the program using non-blocking communication (MPI_Isend and
- MPI_Irecv).
+ d) Rewrite the program using non-blocking communication (`MPI_Isend` and
+ `MPI_Irecv`).
 
  c) Rewrite the program using persistent communication operations
- (MPI_Send_init, MPI_Recv_init, etc.).
+ (`MPI_Send_init`, `MPI_Recv_init`, etc.).
 
