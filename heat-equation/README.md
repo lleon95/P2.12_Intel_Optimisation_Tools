@@ -57,7 +57,7 @@ Code can be build simple with **make**
 How to run
 ----------
 The number of MPI ranks has to be a factor of the grid dimension (default 
-dimension is 200). The default initial temperature field is a disk. Initial
+dimension is 2000). The default initial temperature field is a disk. Initial
 temperature field can be read also from a file, the provided **bottle.dat** 
 illustrates what happens to a cold soda bottle in sauna.
 
