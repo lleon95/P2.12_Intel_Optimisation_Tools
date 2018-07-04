@@ -8,8 +8,8 @@ from heat_io import read_restart, read_field
 def initialize():
 
     timesteps = 500        # Number of time-steps to evolve system
-    nx = 1000
-    ny = 1000
+    nx = 2000
+    ny = 2000
 
     if isfile('HEAT_RESTART.dat'):
         field, field0, parallel, iter0 = read_restart()
@@ -31,7 +31,7 @@ def initialize():
 
         iter0 = 0
 
-    return field, field0, parallel, iter0, timesteps
+    return field, parallel, iter0, timesteps
 
 def generate_field(nx, ny):
 
