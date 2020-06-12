@@ -47,10 +47,9 @@ Compilation instructions
 ------------------------
 For building and running the example one needs to have the
 [libpng](http://www.libpng.org/pub/png/libpng.html) library installed. In
-addition, working MPI environment is required. For Python version mpi4py and
-matplotlib are needed.
+addition, working MPI environment is required.
 
-Move to proper subfolder (C or Fortran) and modify the top of the **Makefile**
+Move to proper subfolder (C) and modify the top of the **Makefile**
 according to your environment (proper compiler commands and compiler flags).
 Code can be build simple with **make**
 
