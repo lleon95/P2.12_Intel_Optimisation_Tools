@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include "pngwriter.h"
 
+#ifdef WITH_PNG
 /* Datatype for RGB pixel */
 typedef struct {
     uint8_t red;
@@ -218,4 +219,11 @@ void cmap(double value, const double scaling, const double offset,
         pix->blue = heat_colormap[ival][2];
     }
 }
+#else
+int save_png(double *data, const int nx, const int ny, const char *fname,
+                             const char lang) {
+
+  return 0;
+}
+#endif
 
