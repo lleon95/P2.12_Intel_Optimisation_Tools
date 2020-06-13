@@ -1,4 +1,4 @@
-# P2.13 Final Assignment - MHPC
+# P2.12 Final Assignment - MHPC
 
 This repo contains the final assignment of the course Advance Optimisation 
 Techniques using Intel OpenAPI tools.
