@@ -10,7 +10,7 @@
 #include "heat.h"
 #include "pngwriter.h"
 
-#define NSTEPS 500  // Default number of iteration steps
+#define NSTEPS 5000  // Default number of iteration steps
 
 /* Initialize the heat equation solver */
 void initialize(int argc, char *argv[], field *current,
