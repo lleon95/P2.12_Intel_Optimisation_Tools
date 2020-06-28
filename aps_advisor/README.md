@@ -1,8 +1,8 @@
-
-
 # Final Project
 
 Comments about the final project for the P2.12_seed Intel course.
+
+Slides for the exam: https://docs.google.com/presentation/d/1apDs22xZgGGsq-k8EGKaitG8849hjpQ1RuLLe1lKah8/edit?usp=sharing
 
 **Goal**: Analyze the [MPI heat equation C code](https://repository.prace-ri.eu/git/CodeVault/training-material/parallel-programming/MPI/-/tree/master/heat-equation/c) with the Intel tools:
 
@@ -10,7 +10,7 @@ Comments about the final project for the P2.12_seed Intel course.
 - Intel Advisor;
 - Intel VTune
 
-**Remark**: Since the latest versions of Intel Advisor and VTune do not work on our machines (due to C libraries being too recent), we had to work on Intel DevCloud. Users are only allowed to use two nodes per core on the DevCloud compute nodes. Moreover, in order to compile the full code the `libpng` library is necessary, therefore we had to install it on the compute nodes as follows:
+**Remark**: Since the `beta 06` versions of Intel Advisor and VTune do not work on our machines (due to C libraries being too recent), we had to work on Intel DevCloud. Users are only allowed to use two nodes per core on the DevCloud compute nodes. Moreover, in order to compile the full code the `libpng` library is necessary, therefore we had to install it on the compute nodes as follows:
 
 - `qsub -l nodes=1:batch:ppn=2 -d . -I` (enter compute node interactively)
 - `tar -xvf libpng-1.6.37.tar.xz` (in user home directory; tar file downloaded from [this site](https://sourceforge.net/projects/libpng/files/libpng16/1.6.37/))
@@ -24,6 +24,10 @@ The Makefile had to be properly modified in order to include the path for the `l
 **Remark**: We will compile and run the code on DevCloud, but analyze the results on our local machines (especially because the GUI are not available on DevCloud).
 
 **Remark**: We will collect performance data for the program run with both 1 and 2 MPI processes. This is because the 1 MPI process case will help us understand bottlenecks for the serial code, while the 2 MPI processes case will give us information about MPI communication bottlenecks.
+
+**Remark**: In the `beta 07` version of Intel tools the `mpiicc` compiler has some bug: 
+
+`/glob/development-tools/versions/oneapi/beta07/inteloneapi/mpi/2021.1-beta07//bin/mpiicc: 542: [: unexpected operator`
 
 
 
@@ -74,6 +78,8 @@ We can also plot the data transfers matrix for rank-to-rank communication, from 
 ## Intel Advisor
 
 To perform a more detailed analysis, we run Intel Advisor. We will improve the compilation flags and the code in a step-by-step approach, following the suggestions from Advisor.
+
+
 
 #### Version 0 - original code
 
@@ -184,7 +190,7 @@ In this case we have two folders `rank.0` and `rank.1`. Before selecting either 
 
 **Remark**: Interestingly, rank 0 sees AVX but not AVX2 (while as we can see just below, rank 1 also sees AVX2); it is not clear to us the reason for this behavior.
 
-The `rank.1` report is similar, even if rank 1 obviously does not call all of the functions:
+The `rank.1` report is similar, even if rank 1 CPU time is substantially higher than rank 0:
 
 ![img/advisor_intro_v0_np2_rk1.png](img/advisor_intro_v0_np2_rk1.png)
 
@@ -292,7 +298,23 @@ More loops are now vectorized, but there still are some performance issue and so
 
 The Advisor result for 2 MPI processes is again divided into two ranks. For `rank.0` we have:
 
-**(TO BE COMPLETED)**
+![img/advisor_intro_v1_np2_rk0.png](img/advisor_intro_v1_np2_rk0.png)
+
+![img/advisor_survey_v1_np2_rk0.png](img/advisor_survey_v1_np2_rk0.png)
+
+![img/advisor_roofline_v1_np2_rk0.png](img/advisor_roofline_v1_np2_rk0.png)
+
+For `rank.1` the report is similar, even if as before the CPU time is much higher than for rank 0:
+
+**Remark**: Apparently rank 1 spend lots of time on `libtcp-fi.so`, but it is not clear what this corresponds to.
+
+![img/advisor_intro_v1_np2_rk1.png](img/advisor_intro_v1_np2_rk1.png)
+
+![img/advisor_survey_v1_np2_rk1.png](img/advisor_survey_v1_np2_rk1.png)
+
+![img/advisor_roofline_v1_np2_rk1.png](img/advisor_roofline_v1_np2_rk1.png)
+
+The conclusions we can obtain from the 2 MPI reports are similar to the 1 MPI case, apart from some confusion about CPU times for different ranks.
 
 
 
@@ -409,7 +431,7 @@ Let us comment on the results:
 
 **Not vectorized loops**
 
-- As before, the outer loop in `evolve_interior` at `core.c 67` was not vectorized since the inner loop was already vectorized. Actually, trying to vectorize both inner and outer loops results in a  decreased  time in scalar code, but also decreases vectorization gain while increasing a lot the total CPU time (15.48 s compared to the previous 3.84 s), as we can see in the images below. This is most likely due to inefficient memory access patterns of the outer loop. For these reasons, we prefer to leave the outer loop not vectorized. 
+- As before, the outer loop in `evolve_interior` at `core.c 67` was not vectorized since the inner loop was already vectorized. Actually, trying to vectorize both inner and outer loops decreases vectorization efficiency and increases a lot the total CPU time (15.48 s compared to the previous 3.84 s), as we can see in the images below. This is most likely due to inefficient memory access patterns of the outer loop. For these reasons, we prefer to leave the outer loop not vectorized. 
 
   ![img/advisor_outer_intro.png](img/advisor_outer_intro.png)
 
@@ -419,14 +441,314 @@ Let us comment on the results:
 
 - The outer loop in `initialize` at `setup.c 95` presents data type conversions that may affect performance, which we were not able to fix (it is actually the same problem as `setup.c 96` since this is its outer loop). Moreover, it was not vectorized since the inner loop was already vectorized: however, vectorizing it is inconvenient for the same reasons discussed in the previous point.
 
-- The loops in `write_field` at `io.c 34` , in `main` at `main.c 49` and in `save_png` at `pngwriter.c 144` were not touched, therefore are still not vectorized because the  loop control variable was found, but the loop iteration count could not be computed before executing the loop (i.e. we have to be more explicit in declaring when to terminate the loops).
-
-- The loop in `save_png` at `pngwriter.c 151` was not touched, therefore is still not vectorized since a non-vectorized and non-inlined user-defined function is called in the loop, and there may also be dependencies:
-
-  ![img/advisor_user_function_calls_and_dependencies.png](img/advisor_user_function_calls_and_dependencies.png)
+- Nothing changed for the loops in `write_field` at `io.c 34` , in `main` at `main.c 49` and in `save_png` at `pngwriter.c 144, 151` since we did not touch these files.
 
 
 
 The Advisor result for 2 MPI processes is divided into two ranks. For `rank.0` we have:
 
-**(TO BE COMPLETED)**
+![img/advisor_intro_v2_np2_rk0.png](img/advisor_intro_v2_np2_rk0.png)
+
+![img/advisor_survey_v2_np2_rk0.png](img/advisor_survey_v2_np2_rk0.png)
+
+![img/advisor_roofline_v2_np2_rk0.png](img/advisor_roofline_v2_np2_rk0.png)
+
+For `rank.1` the report is similar, even if as before the CPU time is much higher than for rank 0:
+
+**Remark**: As before, apparently rank 1 spend lots of time on `libtcp-fi.so`, but it is not clear what this corresponds to.
+
+![img/advisor_intro_v2_np2_rk1.png](img/advisor_intro_v2_np2_rk1.png)
+
+![img/advisor_survey_v2_np2_rk1.png](img/advisor_survey_v2_np2_rk1.png)
+
+![img/advisor_roofline_v2_np2_rk1.png](img/advisor_roofline_v2_np2_rk1.png)
+
+The conclusions we can obtain from the 2 MPI reports are similar to the 1 MPI case, apart from some confusion about CPU times for different ranks.
+
+
+
+#### Version 3 - Improving io.c, pngwriter.c, utilities.c, main.c
+
+Finally, we will try to improve the remaining parts of the source code (`io.c`, `pngwriter.c`, `utilities.c`, `main.c`), following the suggestions by Advisor we listed above. We will add the following modifications:
+
+- We define more explicitly the loop control variable in `write_field` at `io.c 34` , in `main` at `main.c 49` and in `save_png` at `pngwriter.c 144`.
+
+- Looking at the compilation reports, we see that sometimes it is suggested to use memory alignment:
+
+  `remark #34014: optimization advice for memcpy: increase the destination's alignment to 16 (and use __assume_aligned) to speed up library implementation`
+
+  `remark #34014: optimization advice for memcpy: increase the source's alignment to 16 (and use __assume_aligned) to speed up library implementation`
+
+  We therefore modify `malloc_2d` and `free_2d` in `utilities.c` from
+
+  ```c
+  /* Utility routine for allocating a two dimensional array */
+  double *malloc_2d(int nx, int ny)
+  {
+      double *array;
+  
+      array = (double *) malloc(nx * ny * sizeof(double));
+  
+      return array;
+  }
+  
+  /* Utility routine for deallocating a two dimensional array */
+  void free_2d(double *array)
+  {
+      free(array);
+  }
+  ```
+
+  to
+
+  ```c
+  /* Utility routine for allocating a two dimensional array */
+  double *malloc_2d(int nx, int ny)
+  {
+      double *array;
+  
+      array = (double *) _mm_malloc(nx * ny * sizeof(double), 16);
+  
+      return array;
+  }
+  
+  /* Utility routine for deallocating a two dimensional array */
+  void free_2d(double *array)
+  {
+      _mm_free(array);
+  }
+  ```
+
+  and use `__assume_aligned` when needed.
+
+- We clean up the code in `save_png` at `pngwriter.c 151`: since only C memory order is used in the code, we replace
+
+  ```c
+  if (lang == 'c' || lang == 'C') {
+      for (j = 0; j < width; j++) {
+          pixel_t pixel;
+          /* Scale the values so that values between 0 and
+           * 100 degrees are mapped to values between 0 and 255 */
+          cmap(data[j + i * width], 2.55, 0.0, &pixel);
+          *row++ = pixel.red;
+          *row++ = pixel.green;
+          *row++ = pixel.blue;
+      }
+  } else if (lang == 'f' || lang == 'F') {
+      for (j = 0; j < width; j++) {
+          pixel_t pixel;
+          cmap(data[i + j * height], 2.55, 0.0, &pixel);
+          *row++ = pixel.red;
+          *row++ = pixel.green;
+          *row++ = pixel.blue;
+      }
+  } else {
+      fprintf(stderr, "Unknown memory order %c for pngwriter!\n", lang);
+      exit(EXIT_FAILURE);
+  }
+  ```
+
+  which calls `cmap` defined as
+
+  ```c
+  void cmap(double value, const double scaling, const double offset, pixel_t *pix)
+  {
+      int ival;
+  
+      ival = (int)(value * scaling + offset);
+      if (ival < 0) {             /* Colder than colormap, substitute blue */
+          pix->red = 0;
+          pix->green = 0;
+          pix->blue = 255;
+      } else if (ival > 255) {
+          pix->red = 255;         /* Hotter than colormap, substitute red */
+          pix->green = 0;
+          pix->blue = 0;
+      } else {
+          pix->red = heat_colormap[ival][0];
+          pix->green = heat_colormap[ival][1];
+          pix->blue = heat_colormap[ival][2];
+      }
+  }
+  ```
+
+  by a simpler version, where we also eliminate the call to `cmap` by writing its commands (refactored) directly inside the loop, i.e. "inlining" it by hand:
+
+  ```c
+  for (j = 0; j < width; j++) {
+  	/* Scale the values so that values between 0 and
+  	* 100 degrees are mapped to values between 0 and 255 */
+  
+      // refactored call to cmap(data[j + i * width], 2.55, 0.0, &pixel);
+  
+  	int ival = (int)(data[j + i * width] * 2.55);
+  			
+  	if (ival < 0) {
+  		/* Colder than colormap, substitute blue */
+  		ival = 256;
+  	}
+  	else if (ival > 255) {
+  		/* Hotter than colormap, substitute red */
+  		ival = 257;
+  	}
+      
+      // refactored loop code
+      
+  	row[3*j]   = heat_colormap[ival][0];  // red
+  	row[3*j+1] = heat_colormap[ival][1];  // green
+  	row[3*j+2] = heat_colormap[ival][2];  // blue
+  }
+  ```
+
+  **Remark**: Notice that for doing this we had to add two entries `{0,0,255}, {255,0,0}` to `heat_colormap`, which is now  of length 258: `static int heat_colormap[258][3]`. We can do this safely since an `int` (and not a small unsigned integer covering 0-255 values) was already used as index of this array.
+
+  **Remark**: We were forced to "inline" by hand `cmap` since using `#pragma omp declare simd` on the function declaration / definition plus `#pragma omp simd` on the loop is not working entirely as expected, given that even after these pragmas have been added the compiler reports still complain saying that ` SIMD annotation was not seen, consider adding 'declare simd' directives at function declaration`.  
+
+  **Remark**: Remember also to modify the function definition (`pngwriter.c`) and declaration (`pngwriter.h`) from 
+
+  ```c
+  int save_png(double *data, const int height, const int width,
+               const char *fname, const char lang)
+  ```
+
+  to
+
+  ```c
+  int save_png(double *data, const int height, const int width,
+               const char *fname)
+  ```
+
+  Similarly, in `write_field` at `io.c 49` replace
+
+  ```c
+  save_png(full_data, height, width, filename, 'c');
+  ```
+
+  with
+
+  ```c
+  save_png(full_data, height, width, filename);
+  ```
+
+
+
+
+The commands to generate the reports are the same as before, with the only difference being the name of the report folder; for 1 MPI process:
+
+- `make clean`
+- `make REPORT=yes`
+- `mpirun -n 1 -gtool "advixe-cl -collect survey -no-auto-finalize -project-dir ./adv_v3_np1:0" ./heat_mpi`
+- `rm *.png HEAT_RESTART.dat`
+- `mpirun -n 1 -gtool "advixe-cl -collect tripcounts -flop -no-auto-finalize -project-dir ./adv_v3_np1:0" ./heat_mpi`
+- `rm *.png HEAT_RESTART.dat`
+
+For 2 MPI processes:
+
+- `mpirun -n 2 -gtool "advixe-cl -collect survey -no-auto-finalize -project-dir ./adv_v3_np2:0-1" ./heat_mpi`
+- `rm *.png HEAT_RESTART.dat`
+- `mpirun -n 2 -gtool "advixe-cl -collect tripcounts -flop -no-auto-finalize -project-dir ./adv_v3_np2:0-1" ./heat_mpi`
+- `rm *.png HEAT_RESTART.dat`
+
+The Advisor report for 1 MPI process looks like follows:
+
+![img/advisor_intro_v3_np1.png](img/advisor_intro_v3_np1.png)
+
+![img/advisor_survey_v3_np1.png](img/advisor_survey_v3_np1.png)
+
+![img/advisor_roofline_v3_np1.png](img/advisor_roofline_v3_np1.png)
+
+
+
+Let us comment on the results:
+
+**Vectorized loops**
+
+- Nothing changed for the loops in `generate_field` at `setup.c 96`, `evolve_interior` at `core.c 68` and in `evolve_edges` at `core.c 101, 116, 131, 146` since we did not touch these files.
+
+  **Remark:** Now the loops in `evolve_edges` at `core.c 101, 116, 146` do not appear on Advisor; we deduce that nothing happened from the compilation reports.
+
+- The loop in `save_png` at `pngwriter.c 151`  is now vectorized thanks to our code refactoring, but the vectorization gain is only 1.35 (for a vector efficiency of 8%). Indeed, apart from data type conversion issues, there is an inefficient memory access pattern. As explained by the compilation report, this is due to the stride 3 stores used to give RGB value to the pixels  (`remark #15453: unmasked strided stores: 3 `):
+
+  ```c
+  row[3*j]   = heat_colormap[ival][0];  // red
+  row[3*j+1] = heat_colormap[ival][1];  // green
+  row[3*j+2] = heat_colormap[ival][2];  // blue
+  ```
+  This however does not seem like something we can modify easily, since `row` is made of structs defined in `libpng` and expects data in a particular order:
+
+  `pngstruct_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);`
+
+  `png_byte *row = png_malloc(pngstruct_ptr, sizeof(uint8_t) * width * pixel_size);`
+
+  We also tried to change `static int heat_colormap[258][3]` (AoS) into `static int heat_colormap[3][258]` (SoA), but this does not seem to improve performance.
+
+  ![img/advisor_inefficient_memory_access_and_data_type_conversion.png](img/advisor_inefficient_memory_access_and_data_type_conversion.png)
+
+**Not vectorized loops**
+
+- Nothing changed for the outer loops in `evolve_interior` at `core.c 67` and in `initialize` at `setup.c 95`  since we did not touch these files.
+
+- The loop in `save_png` at `pngwriter.c 144 `is not vectorized since it is the outer loop of the loop at `pngwriter.c 151` which is now (slightly) vectorized. Trying to vectorize both results in worse performance, similarly to what seen earlier for other outer loops.
+
+- The loop in `main` at `main.c 49` has not been vectorized because of assumed dependencies. This is the main loop of the program where all the important functions are called, and as such it is extremely hard to understand if there really are dependencies or not: we will therefore not attempt to vectorize it.
+
+  ```c
+  for (iter = iter0; iter < iter_final; iter++) {  // replaced loop end
+      exchange_init(&previous, &parallelization);
+      evolve_interior(&current, &previous, a, dt);
+      exchange_finalize(&parallelization);
+      evolve_edges(&current, &previous, a, dt);
+      if (iter % image_interval == 0) {
+          write_field(&current, iter, &parallelization);
+      }
+     /* write a checkpoint now and then for easy restarting */
+      if (iter % restart_interval == 0) {
+          write_restart(&current, &parallelization, iter);
+      }
+      /* Swap current field so that it will be used
+          as previous for next iteration step */
+      swap_fields(&current, &previous);
+  }
+  ```
+
+  ![img/advisor_dependencies.png](img/advisor_dependencies.png)
+
+- The loop in `write_field` at `io.c 34` is not vectorized because it calls the `memcpy` function:
+
+  ```c
+  for (i = 0; i < temperature_nx; i++)
+  {   
+      memcpy(&full_data[idx(i, 0, width)], 
+             &temperature->data[idx(i+1, 1, temperature->ny + 2)],
+             temperature->ny * sizeof(double));
+  }
+  ```
+
+  Forcing vectorization with `#pragma omp simd` in the loop results in a vector code slower than the scalar case, even with aligned memory (0.87 vectorization gain). This was probably expected since `memcpy` will likely copy large portions of memory, thus ruining contiguous memory access for vectorization. We will therefore leave the loop scalar.
+
+  ![img/advisor_io_vectorization_issue.png](img/advisor_io_vectorization_issue.png)
+
+
+
+The Advisor result for 2 MPI processes is divided into two ranks. For `rank.0` we have:
+
+![img/advisor_intro_v3_np2_rk0.png](img/advisor_intro_v3_np2_rk0.png)
+
+![img/advisor_survey_v3_np2_rk0.png](img/advisor_survey_v3_np2_rk0.png)
+
+![img/advisor_roofline_v3_np2_rk0.png](img/advisor_roofline_v3_np2_rk0.png)
+
+For `rank.1` the report is similar, even if as before the CPU time is much higher than for rank 0:
+
+**Remark**: As before, apparently rank 1 spend lots of time on `libtcp-fi.so`, but it is not clear what this corresponds to.
+
+![img/advisor_intro_v3_np2_rk1.png](img/advisor_intro_v3_np2_rk1.png)
+
+![img/advisor_survey_v3_np2_rk1.png](img/advisor_survey_v3_np2_rk1.png)
+
+![img/advisor_roofline_v3_np2_rk1.png](img/advisor_roofline_v3_np2_rk1.png)
+
+The conclusions we can obtain from the 2 MPI reports are similar to the 1 MPI case, apart from some confusion about CPU times for different ranks.
+
+
+

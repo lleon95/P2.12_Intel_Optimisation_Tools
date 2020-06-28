@@ -1,0 +1,239 @@
+Intel(R) Advisor can now assist with vectorization and show optimization
+  report messages with your source code.
+See "https://software.intel.com/en-us/intel-advisor-xe" for details.
+
+Intel(R) C Intel(R) 64 Compiler for applications running on Intel(R) 64, Version 2021.1 Beta Build 20200602
+
+Compiler options: -I/home/u44098/include -I/glob/development-tools/versions/oneapi/beta07/inteloneapi/mpi/2021.1-beta07/include -g -Ofast -Wall -Wextra -xcore-AVX512 -qopt-zmm-usage=high -no-prec-div -qopenmp-simd -qopt-report=5 -qopt-report-phase=all -c -o utilities.o
+
+    Report from: Interprocedural optimizations [ipo]
+
+  WHOLE PROGRAM (SAFE) [EITHER METHOD]: false
+  WHOLE PROGRAM (SEEN) [TABLE METHOD]: false
+  WHOLE PROGRAM (READ) [OBJECT READER METHOD]: false
+
+INLINING OPTION VALUES:
+  -inline-factor: 100
+  -inline-min-size: 30
+  -inline-max-size: 230
+  -inline-max-total-size: 2000
+  -inline-max-per-routine: 10000
+  -inline-max-per-compile: 500000
+
+In the inlining report below:
+   "sz" refers to the "size" of the routine. The smaller a routine's size,
+      the more likely it is to be inlined.
+   "isz" refers to the "inlined size" of the routine. This is the amount
+      the calling routine will grow if the called routine is inlined into it.
+      The compiler generally limits the amount a routine can grow by having
+      routines inlined into it.
+
+Begin optimization report for: malloc_2d(int, int)
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (malloc_2d(int, int)) [1/5=20.0%] utilities.c(14,1)
+  -> EXTERN: (17,24) _mm_malloc(size_t, size_t)
+
+
+    Report from: Code generation optimizations [cg]
+
+utilities.c(14,1):remark #34051: REGISTER ALLOCATION : [malloc_2d] utilities.c:14
+
+    Hardware registers
+        Reserved     :    2[ rsp rip]
+        Available    :   63[ rax rdx rcx rbx rbp rsi rdi r8-r15 mm0-mm7 zmm0-zmm31 k0-k7]
+        Callee-save  :    6[ rbx rbp r12-r15]
+        Assigned     :    2[ rsi rdi]
+        
+    Routine temporaries
+        Total         :      15
+            Global    :       0
+            Local     :      15
+        Regenerable   :       1
+        Spilled       :       0
+        
+    Routine stack
+        Variables     :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+        Spills        :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+    
+    Notes
+    
+        *Non-overlapping variables and spills may share stack space,
+         so the total stack size might be less than this.
+    
+
+===========================================================================
+
+Begin optimization report for: free_2d(double *)
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (free_2d(double *)) [2/5=40.0%] utilities.c(24,1)
+  -> EXTERN: (25,5) _mm_free(void *)
+
+
+    Report from: Code generation optimizations [cg]
+
+utilities.c(24,1):remark #34051: REGISTER ALLOCATION : [free_2d] utilities.c:24
+
+    Hardware registers
+        Reserved     :    2[ rsp rip]
+        Available    :   63[ rax rdx rcx rbx rbp rsi rdi r8-r15 mm0-mm7 zmm0-zmm31 k0-k7]
+        Callee-save  :    6[ rbx rbp r12-r15]
+        Assigned     :    1[ rdi]
+        
+    Routine temporaries
+        Total         :       9
+            Global    :       0
+            Local     :       9
+        Regenerable   :       0
+        Spilled       :       0
+        
+    Routine stack
+        Variables     :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+        Spills        :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+    
+    Notes
+    
+        *Non-overlapping variables and spills may share stack space,
+         so the total stack size might be less than this.
+    
+
+===========================================================================
+
+Begin optimization report for: copy_field(field *, field *)
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (copy_field(field *, field *)) [3/5=60.0%] utilities.c(31,1)
+  -> EXTERN: (32,5) __assert_fail(const char *, const char *, unsigned int, const char *)
+  -> EXTERN: (33,5) __assert_fail(const char *, const char *, unsigned int, const char *)
+  -> EXTERN: (36,5) memcpy(void *__restrict__, const void *__restrict__, size_t)
+
+
+    Report from: Code generation optimizations [cg]
+
+utilities.c(36,5):remark #34026: call to memcpy implemented as a call to optimized library version
+utilities.c(31,1):remark #34051: REGISTER ALLOCATION : [copy_field] utilities.c:31
+
+    Hardware registers
+        Reserved     :    2[ rsp rip]
+        Available    :   63[ rax rdx rcx rbx rbp rsi rdi r8-r15 mm0-mm7 zmm0-zmm31 k0-k7]
+        Callee-save  :    6[ rbx rbp r12-r15]
+        Assigned     :    5[ rax rdx rcx rsi rdi]
+        
+    Routine temporaries
+        Total         :      38
+            Global    :      10
+            Local     :      28
+        Regenerable   :      14
+        Spilled       :       0
+        
+    Routine stack
+        Variables     :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+        Spills        :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+    
+    Notes
+    
+        *Non-overlapping variables and spills may share stack space,
+         so the total stack size might be less than this.
+    
+
+===========================================================================
+
+Begin optimization report for: swap_fields(field *, field *)
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (swap_fields(field *, field *)) [4/5=80.0%] utilities.c(42,1)
+
+
+    Report from: Code generation optimizations [cg]
+
+utilities.c(42,1):remark #34051: REGISTER ALLOCATION : [swap_fields] utilities.c:42
+
+    Hardware registers
+        Reserved     :    2[ rsp rip]
+        Available    :   63[ rax rdx rcx rbx rbp rsi rdi r8-r15 mm0-mm7 zmm0-zmm31 k0-k7]
+        Callee-save  :    6[ rbx rbp r12-r15]
+        Assigned     :    4[ rax rdx rsi rdi]
+        
+    Routine temporaries
+        Total         :      12
+            Global    :       0
+            Local     :      12
+        Regenerable   :       0
+        Spilled       :       0
+        
+    Routine stack
+        Variables     :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+        Spills        :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+    
+    Notes
+    
+        *Non-overlapping variables and spills may share stack space,
+         so the total stack size might be less than this.
+    
+
+===========================================================================
+
+Begin optimization report for: allocate_field(field *)
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (allocate_field(field *)) [5/5=100.0%] utilities.c(51,1)
+  -> INLINE: (54,9) malloc_2d(int, int) (isz = 5) (sz = 14)
+    -> EXTERN: (17,24) _mm_malloc(size_t, size_t)
+  -> EXTERN: (58,5) memset(void *, int, size_t)
+
+
+    Report from: Code generation optimizations [cg]
+
+utilities.c(58,5):remark #34026: call to memset implemented as a call to optimized library version
+utilities.c(51,1):remark #34051: REGISTER ALLOCATION : [allocate_field] utilities.c:51
+
+    Hardware registers
+        Reserved     :    2[ rsp rip]
+        Available    :   63[ rax rdx rcx rbx rbp rsi rdi r8-r15 mm0-mm7 zmm0-zmm31 k0-k7]
+        Callee-save  :    6[ rbx rbp r12-r15]
+        Assigned     :    5[ rax rdx rsi rdi r12]
+        
+    Routine temporaries
+        Total         :      30
+            Global    :       9
+            Local     :      21
+        Regenerable   :       2
+        Spilled       :       1
+        
+    Routine stack
+        Variables     :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+        Spills        :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+    
+    Notes
+    
+        *Non-overlapping variables and spills may share stack space,
+         so the total stack size might be less than this.
+    
+
+===========================================================================

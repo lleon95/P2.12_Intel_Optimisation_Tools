@@ -1,0 +1,713 @@
+Intel(R) Advisor can now assist with vectorization and show optimization
+  report messages with your source code.
+See "https://software.intel.com/en-us/intel-advisor-xe" for details.
+
+Intel(R) C Intel(R) 64 Compiler for applications running on Intel(R) 64, Version 2021.1 Beta Build 20200602
+
+Compiler options: -I/home/u44098/include -I/glob/development-tools/versions/oneapi/beta07/inteloneapi/mpi/2021.1-beta07/include -g -Ofast -Wall -Wextra -xcore-AVX512 -qopt-zmm-usage=high -no-prec-div -qopt-report=5 -qopt-report-phase=all -c -o setup.o
+
+    Report from: Interprocedural optimizations [ipo]
+
+  WHOLE PROGRAM (SAFE) [EITHER METHOD]: false
+  WHOLE PROGRAM (SEEN) [TABLE METHOD]: false
+  WHOLE PROGRAM (READ) [OBJECT READER METHOD]: false
+
+INLINING OPTION VALUES:
+  -inline-factor: 100
+  -inline-min-size: 30
+  -inline-max-size: 230
+  -inline-max-total-size: 2000
+  -inline-max-per-routine: 10000
+  -inline-max-per-compile: 500000
+
+In the inlining report below:
+   "sz" refers to the "size" of the routine. The smaller a routine's size,
+      the more likely it is to be inlined.
+   "isz" refers to the "inlined size" of the routine. This is the amount
+      the calling routine will grow if the called routine is inlined into it.
+      The compiler generally limits the amount a routine can grow by having
+      routines inlined into it.
+
+Begin optimization report for: atoi(const char *)
+
+    Report from: Interprocedural optimizations [ipo]
+
+NEVER EMIT DEFINITION FUNCTION: (atoi(const char *))/usr/include/stdlib.h(362,1)
+
+===========================================================================
+
+Begin optimization report for: idx(int, int, int)
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (idx(int, int, int)) heat.h(42,1)
+
+===========================================================================
+
+Begin optimization report for: generate_field(field *, parallel_data *)
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (generate_field(field *, parallel_data *)) [3/7=42.9%] setup.c(82,1)
+  -> EXTERN: (90,9) malloc_2d(int, int)
+  -> EXTERN: (91,5) MPI_Cart_get(MPI_Comm, int, int *, int *, int *)
+  -> INLINE (MANUAL): (102,19) idx(int, int, int) (isz = 0) (sz = 9)
+  -> INLINE (MANUAL): (114,19) idx(int, int, int) (isz = 0) (sz = 9)
+  -> INLINE (MANUAL): (121,19) idx(int, int, int) (isz = 0) (sz = 9)
+  -> INLINE (MANUAL): (128,19) idx(int, int, int) (isz = 0) (sz = 9)
+  -> INLINE (MANUAL): (135,19) idx(int, int, int) (isz = 0) (sz = 9)
+
+
+    Report from: Loop nest, Vector & Auto-parallelization optimizations [loop, vec, par]
+
+
+LOOP BEGIN at setup.c(95,5)
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at setup.c(96,9)
+   <Peeled loop for vectorization>
+      remark #15389: vectorization support: reference temperature->data[ind] has unaligned access   [ setup.c(104,17) ]
+      remark #15389: vectorization support: reference temperature->data[ind] has unaligned access   [ setup.c(106,17) ]
+      remark #15381: vectorization support: unaligned access used inside loop body
+      remark #15305: vectorization support: vector length 8
+      remark #15309: vectorization support: normalized vectorization overhead 0.444
+      remark #15301: PEEL LOOP WAS VECTORIZED
+      remark #15451: unmasked unaligned unit stride stores: 1 
+      remark #15475: --- begin vector cost summary ---
+      remark #15476: scalar cost: 28 
+      remark #15477: vector cost: 2.560 
+      remark #15478: estimated potential speedup: 9.170 
+      remark #15487: type converts: 1 
+      remark #15488: --- end vector cost summary ---
+      remark #25456: Number of Array Refs Scalar Replaced In Loop: 1
+      remark #25015: Estimate of max trip count of loop=1
+   LOOP END
+
+   LOOP BEGIN at setup.c(96,9)
+      remark #15389: vectorization support: reference temperature->data[ind] has unaligned access   [ setup.c(104,17) ]
+      remark #15381: vectorization support: unaligned access used inside loop body
+      remark #15305: vectorization support: vector length 16
+      remark #15309: vectorization support: normalized vectorization overhead 0.341
+      remark #15300: LOOP WAS VECTORIZED
+      remark #15451: unmasked unaligned unit stride stores: 1 
+      remark #15475: --- begin vector cost summary ---
+      remark #15476: scalar cost: 28 
+      remark #15477: vector cost: 2.560 
+      remark #15478: estimated potential speedup: 9.170 
+      remark #15487: type converts: 1 
+      remark #15488: --- end vector cost summary ---
+      remark #25456: Number of Array Refs Scalar Replaced In Loop: 1
+   LOOP END
+
+   LOOP BEGIN at setup.c(96,9)
+   <Remainder loop for vectorization>
+      remark #15389: vectorization support: reference temperature->data[ind] has unaligned access   [ setup.c(104,17) ]
+      remark #15389: vectorization support: reference temperature->data[ind] has unaligned access   [ setup.c(106,17) ]
+      remark #15381: vectorization support: unaligned access used inside loop body
+      remark #15305: vectorization support: vector length 16
+      remark #15309: vectorization support: normalized vectorization overhead 0.269
+      remark #15301: REMAINDER LOOP WAS VECTORIZED
+      remark #15451: unmasked unaligned unit stride stores: 1 
+      remark #15475: --- begin vector cost summary ---
+      remark #15476: scalar cost: 28 
+      remark #15477: vector cost: 2.560 
+      remark #15478: estimated potential speedup: 9.170 
+      remark #15487: type converts: 1 
+      remark #15488: --- end vector cost summary ---
+   LOOP END
+LOOP END
+
+LOOP BEGIN at setup.c(113,9)
+   remark #15329: vectorization support: non-unit strided store was emulated for the variable <temperature->data[i*width]>, stride is unknown to compiler   [ setup.c(115,13) ]
+   remark #15305: vectorization support: vector length 2
+   remark #15399: vectorization support: unroll factor set to 4
+   remark #15300: LOOP WAS VECTORIZED
+   remark #15453: unmasked strided stores: 1 
+   remark #15475: --- begin vector cost summary ---
+   remark #15476: scalar cost: 4 
+   remark #15477: vector cost: 3.000 
+   remark #15478: estimated potential speedup: 1.290 
+   remark #15488: --- end vector cost summary ---
+LOOP END
+
+LOOP BEGIN at setup.c(113,9)
+<Remainder loop for vectorization>
+LOOP END
+
+LOOP BEGIN at setup.c(120,9)
+   remark #15329: vectorization support: non-unit strided store was emulated for the variable <temperature->data[i*width+width+1]>, stride is unknown to compiler   [ setup.c(122,13) ]
+   remark #15305: vectorization support: vector length 2
+   remark #15399: vectorization support: unroll factor set to 4
+   remark #15300: LOOP WAS VECTORIZED
+   remark #15453: unmasked strided stores: 1 
+   remark #15475: --- begin vector cost summary ---
+   remark #15476: scalar cost: 4 
+   remark #15477: vector cost: 3.000 
+   remark #15478: estimated potential speedup: 1.290 
+   remark #15488: --- end vector cost summary ---
+LOOP END
+
+LOOP BEGIN at setup.c(120,9)
+<Remainder loop for vectorization>
+LOOP END
+
+LOOP BEGIN at setup.c(127,9)
+<Peeled loop for vectorization>
+   remark #15389: vectorization support: reference temperature->data[j] has unaligned access   [ setup.c(129,13) ]
+   remark #15381: vectorization support: unaligned access used inside loop body
+   remark #15305: vectorization support: vector length 8
+   remark #15309: vectorization support: normalized vectorization overhead 1.167
+   remark #15301: PEEL LOOP WAS VECTORIZED
+   remark #15449: unmasked aligned unit stride stores: 1 
+   remark #15475: --- begin vector cost summary ---
+   remark #15476: scalar cost: 4 
+   remark #15477: vector cost: 0.370 
+   remark #15478: estimated potential speedup: 9.230 
+   remark #15488: --- end vector cost summary ---
+LOOP END
+
+LOOP BEGIN at setup.c(127,9)
+   remark #15388: vectorization support: reference temperature->data[j] has aligned access   [ setup.c(129,13) ]
+   remark #15305: vectorization support: vector length 8
+   remark #15399: vectorization support: unroll factor set to 2
+   remark #15309: vectorization support: normalized vectorization overhead 1.667
+   remark #15300: LOOP WAS VECTORIZED
+   remark #15449: unmasked aligned unit stride stores: 1 
+   remark #15475: --- begin vector cost summary ---
+   remark #15476: scalar cost: 4 
+   remark #15477: vector cost: 0.370 
+   remark #15478: estimated potential speedup: 9.230 
+   remark #15488: --- end vector cost summary ---
+LOOP END
+
+LOOP BEGIN at setup.c(127,9)
+<Remainder loop for vectorization>
+   remark #15389: vectorization support: reference temperature->data[j] has unaligned access   [ setup.c(129,13) ]
+   remark #15381: vectorization support: unaligned access used inside loop body
+   remark #15305: vectorization support: vector length 8
+   remark #15309: vectorization support: normalized vectorization overhead 1.167
+   remark #15301: REMAINDER LOOP WAS VECTORIZED
+   remark #15449: unmasked aligned unit stride stores: 1 
+   remark #15475: --- begin vector cost summary ---
+   remark #15476: scalar cost: 4 
+   remark #15477: vector cost: 0.370 
+   remark #15478: estimated potential speedup: 9.230 
+   remark #15488: --- end vector cost summary ---
+LOOP END
+
+LOOP BEGIN at setup.c(134,9)
+<Peeled loop for vectorization>
+   remark #15389: vectorization support: reference temperature->data[(temperature->nx+1)*width+j] has unaligned access   [ setup.c(136,13) ]
+   remark #15381: vectorization support: unaligned access used inside loop body
+   remark #15305: vectorization support: vector length 8
+   remark #15309: vectorization support: normalized vectorization overhead 1.167
+   remark #15301: PEEL LOOP WAS VECTORIZED
+   remark #15449: unmasked aligned unit stride stores: 1 
+   remark #15475: --- begin vector cost summary ---
+   remark #15476: scalar cost: 4 
+   remark #15477: vector cost: 0.370 
+   remark #15478: estimated potential speedup: 9.230 
+   remark #15488: --- end vector cost summary ---
+LOOP END
+
+LOOP BEGIN at setup.c(134,9)
+   remark #15388: vectorization support: reference temperature->data[(temperature->nx+1)*width+j] has aligned access   [ setup.c(136,13) ]
+   remark #15305: vectorization support: vector length 8
+   remark #15399: vectorization support: unroll factor set to 2
+   remark #15309: vectorization support: normalized vectorization overhead 1.667
+   remark #15300: LOOP WAS VECTORIZED
+   remark #15449: unmasked aligned unit stride stores: 1 
+   remark #15475: --- begin vector cost summary ---
+   remark #15476: scalar cost: 4 
+   remark #15477: vector cost: 0.370 
+   remark #15478: estimated potential speedup: 9.230 
+   remark #15488: --- end vector cost summary ---
+LOOP END
+
+LOOP BEGIN at setup.c(134,9)
+<Remainder loop for vectorization>
+   remark #15389: vectorization support: reference temperature->data[(temperature->nx+1)*width+j] has unaligned access   [ setup.c(136,13) ]
+   remark #15381: vectorization support: unaligned access used inside loop body
+   remark #15305: vectorization support: vector length 8
+   remark #15309: vectorization support: normalized vectorization overhead 1.167
+   remark #15301: REMAINDER LOOP WAS VECTORIZED
+   remark #15449: unmasked aligned unit stride stores: 1 
+   remark #15475: --- begin vector cost summary ---
+   remark #15476: scalar cost: 4 
+   remark #15477: vector cost: 0.370 
+   remark #15478: estimated potential speedup: 9.230 
+   remark #15488: --- end vector cost summary ---
+LOOP END
+
+    Report from: Code generation optimizations [cg]
+
+setup.c(82,1):remark #34051: REGISTER ALLOCATION : [generate_field] setup.c:82
+
+    Hardware registers
+        Reserved     :    2[ rsp rip]
+        Available    :   63[ rax rdx rcx rbx rbp rsi rdi r8-r15 mm0-mm7 zmm0-zmm31 k0-k7]
+        Callee-save  :    6[ rbx rbp r12-r15]
+        Assigned     :   44[ rax rdx rcx rbx rsi rdi r8-r15 zmm0-zmm21 k0-k7]
+        
+    Routine temporaries
+        Total         :     293
+            Global    :     132
+            Local     :     161
+        Regenerable   :      31
+        Spilled       :      22
+        
+    Routine stack
+        Variables     :      24 bytes*
+            Reads     :       5 [1.28e-01 ~ 0.1%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+        Spills        :     120 bytes*
+            Reads     :      39 [1.71e+00 ~ 1.7%]
+            Writes    :      25 [1.12e+00 ~ 1.1%]
+    
+    Notes
+    
+        *Non-overlapping variables and spills may share stack space,
+         so the total stack size might be less than this.
+    
+
+===========================================================================
+
+Begin optimization report for: set_field_dimensions(field *, int, int, parallel_data *)
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (set_field_dimensions(field *, int, int, parallel_data *)) [4/7=57.1%] setup.c(144,1)
+  -> EXTERN: (147,5) MPI_Cart_get(MPI_Comm, int, int *, int *, int *)
+
+
+    Report from: Code generation optimizations [cg]
+
+setup.c(144,1):remark #34051: REGISTER ALLOCATION : [set_field_dimensions] setup.c:144
+
+    Hardware registers
+        Reserved     :    2[ rsp rip]
+        Available    :   63[ rax rdx rcx rbx rbp rsi rdi r8-r15 mm0-mm7 zmm0-zmm31 k0-k7]
+        Callee-save  :    6[ rbx rbp r12-r15]
+        Assigned     :    9[ rax rdx rcx rsi rdi r8 r13-r15]
+        
+    Routine temporaries
+        Total         :      32
+            Global    :       9
+            Local     :      23
+        Regenerable   :       8
+        Spilled       :       3
+        
+    Routine stack
+        Variables     :      24 bytes*
+            Reads     :       2 [4.55e+00 ~ 4.5%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+        Spills        :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+    
+    Notes
+    
+        *Non-overlapping variables and spills may share stack space,
+         so the total stack size might be less than this.
+    
+
+===========================================================================
+
+Begin optimization report for: parallel_setup(parallel_data *, int, int)
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (parallel_setup(parallel_data *, int, int)) [5/7=71.4%] setup.c(158,1)
+  -> EXTERN: (162,17) ?1memset
+  -> EXTERN: (163,20) ?1memset
+  -> EXTERN: (165,5) MPI_Comm_size(MPI_Comm, int *)
+  -> EXTERN: (166,5) MPI_Dims_create(int, int, int *)
+  -> EXTERN: (170,9) printf(const char *__restrict__, ...)
+  -> EXTERN: (172,9) MPI_Abort(MPI_Comm, int)
+  -> EXTERN: (175,9) printf(const char *__restrict__, ...)
+  -> EXTERN: (177,9) MPI_Abort(MPI_Comm, int)
+  -> EXTERN: (180,5) MPI_Cart_create(MPI_Comm, int, const int *, const int *, int, MPI_Comm *)
+  -> EXTERN: (181,5) MPI_Cart_shift(MPI_Comm, int, int, int *, int *)
+  -> EXTERN: (182,5) MPI_Cart_shift(MPI_Comm, int, int, int *, int *)
+  -> EXTERN: (184,5) MPI_Comm_size(MPI_Comm, int *)
+  -> EXTERN: (185,5) MPI_Comm_rank(MPI_Comm, int *)
+  -> EXTERN: (187,9) printf(const char *__restrict__, ...)
+  -> EXTERN: (188,9) printf(const char *__restrict__, ...)
+  -> EXTERN: (191,5) MPI_Type_vector(int, int, int, MPI_Datatype, MPI_Datatype *)
+  -> EXTERN: (193,5) MPI_Type_contiguous(int, MPI_Datatype, MPI_Datatype *)
+  -> EXTERN: (194,5) MPI_Type_commit(MPI_Datatype *)
+  -> EXTERN: (195,5) MPI_Type_commit(MPI_Datatype *)
+  -> EXTERN: (208,5) MPI_Type_create_subarray(int, const int *, const int *, const int *, int, MPI_Datatype, MPI_Datatype *)
+  -> EXTERN: (210,5) MPI_Type_commit(MPI_Datatype *)
+  -> EXTERN: (215,5) MPI_Cart_coords(MPI_Comm, int, int, int *)
+  -> EXTERN: (234,5) MPI_Type_create_subarray(int, const int *, const int *, const int *, int, MPI_Datatype, MPI_Datatype *)
+  -> EXTERN: (236,5) MPI_Type_commit(MPI_Datatype *)
+  -> EXTERN: (247,5) MPI_Type_create_subarray(int, const int *, const int *, const int *, int, MPI_Datatype, MPI_Datatype *)
+  -> EXTERN: (249,5) MPI_Type_commit(MPI_Datatype *)
+
+
+    Report from: Code generation optimizations [cg]
+
+setup.c(162,17):remark #34000: call to memset implemented inline with stores with proven (alignment, offset): (64, 0)
+setup.c(163,20):remark #34000: call to memset implemented inline with stores with proven (alignment, offset): (64, 0)
+setup.c(158,1):remark #34051: REGISTER ALLOCATION : [parallel_setup] setup.c:158
+
+    Hardware registers
+        Reserved     :    2[ rsp rip]
+        Available    :   63[ rax rdx rcx rbx rbp rsi rdi r8-r15 mm0-mm7 zmm0-zmm31 k0-k7]
+        Callee-save  :    6[ rbx rbp r12-r15]
+        Assigned     :   13[ rax rdx rcx rbx rsi rdi r8-r10 r12-r15]
+        
+    Routine temporaries
+        Total         :     153
+            Global    :      30
+            Local     :     123
+        Regenerable   :      61
+        Spilled       :      10
+        
+    Routine stack
+        Variables     :      52 bytes*
+            Reads     :      16 [5.98e+00 ~ 6.0%]
+            Writes    :      28 [9.37e+00 ~ 9.4%]
+        Spills        :      40 bytes*
+            Reads     :       8 [3.64e+00 ~ 3.6%]
+            Writes    :       5 [2.60e+00 ~ 2.6%]
+    
+    Notes
+    
+        *Non-overlapping variables and spills may share stack space,
+         so the total stack size might be less than this.
+    
+
+===========================================================================
+
+Begin optimization report for: finalize(field *, field *, parallel_data *)
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (finalize(field *, field *, parallel_data *)) [6/7=85.7%] setup.c(254,1)
+  -> EXTERN: (255,5) free_2d(double *)
+  -> EXTERN: (256,5) free_2d(double *)
+  -> EXTERN: (257,5) MPI_Type_free(MPI_Datatype *)
+  -> EXTERN: (258,5) MPI_Type_free(MPI_Datatype *)
+  -> EXTERN: (259,5) MPI_Type_free(MPI_Datatype *)
+  -> EXTERN: (260,5) MPI_Type_free(MPI_Datatype *)
+  -> EXTERN: (261,5) MPI_Type_free(MPI_Datatype *)
+
+
+    Report from: Code generation optimizations [cg]
+
+setup.c(254,1):remark #34051: REGISTER ALLOCATION : [finalize] setup.c:254
+
+    Hardware registers
+        Reserved     :    2[ rsp rip]
+        Available    :   63[ rax rdx rcx rbx rbp rsi rdi r8-r15 mm0-mm7 zmm0-zmm31 k0-k7]
+        Callee-save  :    6[ rbx rbp r12-r15]
+        Assigned     :    5[ rdx rsi rdi r14-r15]
+        
+    Routine temporaries
+        Total         :      26
+            Global    :       8
+            Local     :      18
+        Regenerable   :       0
+        Spilled       :       2
+        
+    Routine stack
+        Variables     :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+        Spills        :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+    
+    Notes
+    
+        *Non-overlapping variables and spills may share stack space,
+         so the total stack size might be less than this.
+    
+
+===========================================================================
+
+Begin optimization report for: initialize(int, char **, field *, field *, int *, parallel_data *, int *)
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (initialize(int, char **, field *, field *, int *, parallel_data *, int *)) [7/7=100.0%] setup.c(16,1)
+  -> EXTERN: (36,9) strncpy(char *__restrict__, const char *__restrict__, size_t)
+  -> EXTERN: (41,9) strncpy(char *__restrict__, const char *__restrict__, size_t)
+  -> INLINE (MANUAL): (44,19) atoi(const char *) (isz = 4) (sz = 11)
+    -> EXTERN: /usr/include/stdlib.h:(363,16) strtol(const char *__restrict__, char **__restrict__, int)
+  -> INLINE (MANUAL): (48,16) atoi(const char *) (isz = 4) (sz = 11)
+    -> EXTERN: /usr/include/stdlib.h:(363,16) strtol(const char *__restrict__, char **__restrict__, int)
+  -> INLINE (MANUAL): (49,16) atoi(const char *) (isz = 4) (sz = 11)
+    -> EXTERN: /usr/include/stdlib.h:(363,16) strtol(const char *__restrict__, char **__restrict__, int)
+  -> INLINE (MANUAL): (51,19) atoi(const char *) (isz = 4) (sz = 11)
+    -> EXTERN: /usr/include/stdlib.h:(363,16) strtol(const char *__restrict__, char **__restrict__, int)
+  -> EXTERN: (54,9) printf(const char *__restrict__, ...)
+  -> EXTERN: (55,9) exit(int)
+  -> EXTERN: (58,10) access(const char *, int)
+  -> EXTERN: (59,9) read_restart(field *, parallel_data *, int *)
+  -> INLINE: (60,9) set_field_dimensions(field *, int, int, parallel_data *) (isz = 27) (sz = 38)
+    -> EXTERN: (147,5) MPI_Cart_get(MPI_Comm, int, int *, int *, int *)
+  -> EXTERN: (62,9) allocate_field(field *)
+  -> EXTERN: (64,13) printf(const char *__restrict__, ...)
+  -> EXTERN: (66,9) copy_field(field *, field *)
+  -> EXTERN: (68,9) read_field(field *, field *, char *, parallel_data *)
+  -> INLINE: (70,9) parallel_setup(parallel_data *, int, int) (isz = 331) (sz = 340)
+    -> EXTERN: (162,17) ?1memset
+    -> EXTERN: (163,20) ?1memset
+    -> EXTERN: (165,5) MPI_Comm_size(MPI_Comm, int *)
+    -> EXTERN: (166,5) MPI_Dims_create(int, int, int *)
+    -> EXTERN: (170,9) printf(const char *__restrict__, ...)
+    -> EXTERN: (172,9) MPI_Abort(MPI_Comm, int)
+    -> EXTERN: (175,9) printf(const char *__restrict__, ...)
+    -> EXTERN: (177,9) MPI_Abort(MPI_Comm, int)
+    -> EXTERN: (180,5) MPI_Cart_create(MPI_Comm, int, const int *, const int *, int, MPI_Comm *)
+    -> EXTERN: (181,5) MPI_Cart_shift(MPI_Comm, int, int, int *, int *)
+    -> EXTERN: (182,5) MPI_Cart_shift(MPI_Comm, int, int, int *, int *)
+    -> EXTERN: (184,5) MPI_Comm_size(MPI_Comm, int *)
+    -> EXTERN: (185,5) MPI_Comm_rank(MPI_Comm, int *)
+    -> EXTERN: (187,9) printf(const char *__restrict__, ...)
+    -> EXTERN: (188,9) printf(const char *__restrict__, ...)
+    -> EXTERN: (191,5) MPI_Type_vector(int, int, int, MPI_Datatype, MPI_Datatype *)
+    -> EXTERN: (193,5) MPI_Type_contiguous(int, MPI_Datatype, MPI_Datatype *)
+    -> EXTERN: (194,5) MPI_Type_commit(MPI_Datatype *)
+    -> EXTERN: (195,5) MPI_Type_commit(MPI_Datatype *)
+    -> EXTERN: (208,5) MPI_Type_create_subarray(int, const int *, const int *, const int *, int, MPI_Datatype, MPI_Datatype *)
+    -> EXTERN: (210,5) MPI_Type_commit(MPI_Datatype *)
+    -> EXTERN: (215,5) MPI_Cart_coords(MPI_Comm, int, int, int *)
+    -> EXTERN: (234,5) MPI_Type_create_subarray(int, const int *, const int *, const int *, int, MPI_Datatype, MPI_Datatype *)
+    -> EXTERN: (236,5) MPI_Type_commit(MPI_Datatype *)
+    -> EXTERN: (247,5) MPI_Type_create_subarray(int, const int *, const int *, const int *, int, MPI_Datatype, MPI_Datatype *)
+    -> EXTERN: (249,5) MPI_Type_commit(MPI_Datatype *)
+  -> INLINE: (71,9) set_field_dimensions(field *, int, int, parallel_data *) (isz = 27) (sz = 38)
+    -> EXTERN: (147,5) MPI_Cart_get(MPI_Comm, int, int *, int *, int *)
+  -> INLINE: (72,9) set_field_dimensions(field *, int, int, parallel_data *) (isz = 27) (sz = 38)
+    -> EXTERN: (147,5) MPI_Cart_get(MPI_Comm, int, int *, int *, int *)
+  -> INLINE: (73,9) generate_field(field *, parallel_data *) (isz = 243) (sz = 250)
+    -> EXTERN: (90,9) malloc_2d(int, int)
+    -> EXTERN: (91,5) MPI_Cart_get(MPI_Comm, int, int *, int *, int *)
+    -> INLINE (MANUAL): (102,19) idx(int, int, int) (isz = 0) (sz = 9)
+    -> INLINE (MANUAL): (114,19) idx(int, int, int) (isz = 0) (sz = 9)
+    -> INLINE (MANUAL): (121,19) idx(int, int, int) (isz = 0) (sz = 9)
+    -> INLINE (MANUAL): (128,19) idx(int, int, int) (isz = 0) (sz = 9)
+    -> INLINE (MANUAL): (135,19) idx(int, int, int) (isz = 0) (sz = 9)
+  -> EXTERN: (74,9) allocate_field(field *)
+  -> EXTERN: (75,9) copy_field(field *, field *)
+
+
+    Report from: Loop nest, Vector & Auto-parallelization optimizations [loop, vec, par]
+
+
+LOOP BEGIN at setup.c(95,5) inlined into setup.c(73,9)
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at setup.c(96,9) inlined into setup.c(73,9)
+   <Peeled loop for vectorization>
+      remark #15389: vectorization support: reference current->data[ind] has unaligned access   [ setup.c(104,17) ]
+      remark #15389: vectorization support: reference current->data[ind] has unaligned access   [ setup.c(106,17) ]
+      remark #15381: vectorization support: unaligned access used inside loop body
+      remark #15305: vectorization support: vector length 8
+      remark #15309: vectorization support: normalized vectorization overhead 0.444
+      remark #15301: PEEL LOOP WAS VECTORIZED
+      remark #15451: unmasked unaligned unit stride stores: 1 
+      remark #15475: --- begin vector cost summary ---
+      remark #15476: scalar cost: 28 
+      remark #15477: vector cost: 2.560 
+      remark #15478: estimated potential speedup: 9.170 
+      remark #15487: type converts: 1 
+      remark #15488: --- end vector cost summary ---
+      remark #25456: Number of Array Refs Scalar Replaced In Loop: 1
+      remark #25015: Estimate of max trip count of loop=1
+   LOOP END
+
+   LOOP BEGIN at setup.c(96,9) inlined into setup.c(73,9)
+      remark #15389: vectorization support: reference current->data[ind] has unaligned access   [ setup.c(104,17) ]
+      remark #15381: vectorization support: unaligned access used inside loop body
+      remark #15305: vectorization support: vector length 16
+      remark #15309: vectorization support: normalized vectorization overhead 0.341
+      remark #15300: LOOP WAS VECTORIZED
+      remark #15451: unmasked unaligned unit stride stores: 1 
+      remark #15475: --- begin vector cost summary ---
+      remark #15476: scalar cost: 28 
+      remark #15477: vector cost: 2.560 
+      remark #15478: estimated potential speedup: 9.170 
+      remark #15487: type converts: 1 
+      remark #15488: --- end vector cost summary ---
+      remark #25456: Number of Array Refs Scalar Replaced In Loop: 1
+   LOOP END
+
+   LOOP BEGIN at setup.c(96,9) inlined into setup.c(73,9)
+   <Remainder loop for vectorization>
+      remark #15389: vectorization support: reference current->data[ind] has unaligned access   [ setup.c(104,17) ]
+      remark #15389: vectorization support: reference current->data[ind] has unaligned access   [ setup.c(106,17) ]
+      remark #15381: vectorization support: unaligned access used inside loop body
+      remark #15305: vectorization support: vector length 16
+      remark #15309: vectorization support: normalized vectorization overhead 0.269
+      remark #15301: REMAINDER LOOP WAS VECTORIZED
+      remark #15451: unmasked unaligned unit stride stores: 1 
+      remark #15475: --- begin vector cost summary ---
+      remark #15476: scalar cost: 28 
+      remark #15477: vector cost: 2.560 
+      remark #15478: estimated potential speedup: 9.170 
+      remark #15487: type converts: 1 
+      remark #15488: --- end vector cost summary ---
+   LOOP END
+LOOP END
+
+LOOP BEGIN at setup.c(113,9) inlined into setup.c(73,9)
+   remark #15329: vectorization support: non-unit strided store was emulated for the variable <current->data[i*width]>, stride is unknown to compiler   [ setup.c(115,13) ]
+   remark #15305: vectorization support: vector length 2
+   remark #15399: vectorization support: unroll factor set to 4
+   remark #15300: LOOP WAS VECTORIZED
+   remark #15453: unmasked strided stores: 1 
+   remark #15475: --- begin vector cost summary ---
+   remark #15476: scalar cost: 4 
+   remark #15477: vector cost: 3.000 
+   remark #15478: estimated potential speedup: 1.290 
+   remark #15488: --- end vector cost summary ---
+LOOP END
+
+LOOP BEGIN at setup.c(113,9) inlined into setup.c(73,9)
+<Remainder loop for vectorization>
+LOOP END
+
+LOOP BEGIN at setup.c(120,9) inlined into setup.c(73,9)
+   remark #15329: vectorization support: non-unit strided store was emulated for the variable <current->data[i*width+width+1]>, stride is unknown to compiler   [ setup.c(122,13) ]
+   remark #15305: vectorization support: vector length 2
+   remark #15399: vectorization support: unroll factor set to 4
+   remark #15300: LOOP WAS VECTORIZED
+   remark #15453: unmasked strided stores: 1 
+   remark #15475: --- begin vector cost summary ---
+   remark #15476: scalar cost: 4 
+   remark #15477: vector cost: 3.000 
+   remark #15478: estimated potential speedup: 1.290 
+   remark #15488: --- end vector cost summary ---
+LOOP END
+
+LOOP BEGIN at setup.c(120,9) inlined into setup.c(73,9)
+<Remainder loop for vectorization>
+LOOP END
+
+LOOP BEGIN at setup.c(127,9) inlined into setup.c(73,9)
+<Peeled loop for vectorization>
+   remark #15389: vectorization support: reference current->data[j] has unaligned access   [ setup.c(129,13) ]
+   remark #15381: vectorization support: unaligned access used inside loop body
+   remark #15305: vectorization support: vector length 8
+   remark #15309: vectorization support: normalized vectorization overhead 1.167
+   remark #15301: PEEL LOOP WAS VECTORIZED
+   remark #15449: unmasked aligned unit stride stores: 1 
+   remark #15475: --- begin vector cost summary ---
+   remark #15476: scalar cost: 4 
+   remark #15477: vector cost: 0.370 
+   remark #15478: estimated potential speedup: 9.230 
+   remark #15488: --- end vector cost summary ---
+LOOP END
+
+LOOP BEGIN at setup.c(127,9) inlined into setup.c(73,9)
+   remark #15388: vectorization support: reference current->data[j] has aligned access   [ setup.c(129,13) ]
+   remark #15305: vectorization support: vector length 8
+   remark #15399: vectorization support: unroll factor set to 2
+   remark #15309: vectorization support: normalized vectorization overhead 1.667
+   remark #15300: LOOP WAS VECTORIZED
+   remark #15449: unmasked aligned unit stride stores: 1 
+   remark #15475: --- begin vector cost summary ---
+   remark #15476: scalar cost: 4 
+   remark #15477: vector cost: 0.370 
+   remark #15478: estimated potential speedup: 9.230 
+   remark #15488: --- end vector cost summary ---
+LOOP END
+
+LOOP BEGIN at setup.c(127,9) inlined into setup.c(73,9)
+<Remainder loop for vectorization>
+   remark #15389: vectorization support: reference current->data[j] has unaligned access   [ setup.c(129,13) ]
+   remark #15381: vectorization support: unaligned access used inside loop body
+   remark #15305: vectorization support: vector length 8
+   remark #15309: vectorization support: normalized vectorization overhead 1.167
+   remark #15301: REMAINDER LOOP WAS VECTORIZED
+   remark #15449: unmasked aligned unit stride stores: 1 
+   remark #15475: --- begin vector cost summary ---
+   remark #15476: scalar cost: 4 
+   remark #15477: vector cost: 0.370 
+   remark #15478: estimated potential speedup: 9.230 
+   remark #15488: --- end vector cost summary ---
+LOOP END
+
+LOOP BEGIN at setup.c(134,9) inlined into setup.c(73,9)
+<Peeled loop for vectorization>
+   remark #15389: vectorization support: reference current->data[(current->nx+1)*width+j] has unaligned access   [ setup.c(136,13) ]
+   remark #15381: vectorization support: unaligned access used inside loop body
+   remark #15305: vectorization support: vector length 8
+   remark #15309: vectorization support: normalized vectorization overhead 1.167
+   remark #15301: PEEL LOOP WAS VECTORIZED
+   remark #15449: unmasked aligned unit stride stores: 1 
+   remark #15475: --- begin vector cost summary ---
+   remark #15476: scalar cost: 4 
+   remark #15477: vector cost: 0.370 
+   remark #15478: estimated potential speedup: 9.230 
+   remark #15488: --- end vector cost summary ---
+LOOP END
+
+LOOP BEGIN at setup.c(134,9) inlined into setup.c(73,9)
+   remark #15388: vectorization support: reference current->data[(current->nx+1)*width+j] has aligned access   [ setup.c(136,13) ]
+   remark #15305: vectorization support: vector length 8
+   remark #15399: vectorization support: unroll factor set to 2
+   remark #15309: vectorization support: normalized vectorization overhead 1.667
+   remark #15300: LOOP WAS VECTORIZED
+   remark #15449: unmasked aligned unit stride stores: 1 
+   remark #15475: --- begin vector cost summary ---
+   remark #15476: scalar cost: 4 
+   remark #15477: vector cost: 0.370 
+   remark #15478: estimated potential speedup: 9.230 
+   remark #15488: --- end vector cost summary ---
+LOOP END
+
+LOOP BEGIN at setup.c(134,9) inlined into setup.c(73,9)
+<Remainder loop for vectorization>
+   remark #15389: vectorization support: reference current->data[(current->nx+1)*width+j] has unaligned access   [ setup.c(136,13) ]
+   remark #15381: vectorization support: unaligned access used inside loop body
+   remark #15305: vectorization support: vector length 8
+   remark #15309: vectorization support: normalized vectorization overhead 1.167
+   remark #15301: REMAINDER LOOP WAS VECTORIZED
+   remark #15449: unmasked aligned unit stride stores: 1 
+   remark #15475: --- begin vector cost summary ---
+   remark #15476: scalar cost: 4 
+   remark #15477: vector cost: 0.370 
+   remark #15478: estimated potential speedup: 9.230 
+   remark #15488: --- end vector cost summary ---
+LOOP END
+
+    Report from: Code generation optimizations [cg]
+
+setup.c(162,17):remark #34000: call to memset implemented inline with stores with proven (alignment, offset): (64, 0)
+setup.c(163,20):remark #34000: call to memset implemented inline with stores with proven (alignment, offset): (64, 0)
+setup.c(16,1):remark #34051: REGISTER ALLOCATION : [initialize] setup.c:16
+
+    Hardware registers
+        Reserved     :    2[ rsp rip]
+        Available    :   63[ rax rdx rcx rbx rbp rsi rdi r8-r15 mm0-mm7 zmm0-zmm31 k0-k7]
+        Callee-save  :    6[ rbx rbp r12-r15]
+        Assigned     :   44[ rax rdx rcx rbx rsi rdi r8-r15 zmm0-zmm21 k0-k7]
+        
+    Routine temporaries
+        Total         :     559
+            Global    :     174
+            Local     :     385
+        Regenerable   :     133
+        Spilled       :      29
+        
+    Routine stack
+        Variables     :     212 bytes*
+            Reads     :      26 [4.66e-01 ~ 0.5%]
+            Writes    :      28 [3.89e-01 ~ 0.4%]
+        Spills        :     184 bytes*
+            Reads     :      63 [1.92e+00 ~ 1.9%]
+            Writes    :      34 [2.73e+00 ~ 2.7%]
+    
+    Notes
+    
+        *Non-overlapping variables and spills may share stack space,
+         so the total stack size might be less than this.
+    
+
+===========================================================================
