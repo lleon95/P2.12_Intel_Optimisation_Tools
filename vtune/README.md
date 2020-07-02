@@ -1,10 +1,18 @@
 ## VTune analysis
 
-First, the code has been run under VTune on DevCloud "cluster" and we obtained the following picture:  
+We want to use VTune to find the exact hotspots in our program and see if they come from CPU or memory utilization.
+
+First, the code has been run under VTune on DevCloud "cluster" (which allowed us to ask for maximum of 4 nodes and 2 cores on each), using the command 
+
+`mpirun -np 8 vtune -collect uarch-exploration -knob collect-memory-bandwidth=true -trace-mpi -result-dir result_mpi_ua -app-working-dir /home/u44111/P2.13_Final_Assignment/heat-equation/c -- /home/u44111/P2.13_Final_Assignment/heat-equation/c/heat_mpi`
+
+ and we obtained the following picture:  
 
 ![](./img/vtune/old/new_core.c_ua1.png) 
 
-As we can see, VTune marks the most CPU consuming task as "Outside any known module", and lots of lines are grayed out and marked "unreliable" when pointed with a mouse. It looks like we do not have proper access to hardware counters on Intel machine, so we went to a local laptop to see more detailed results. Thus the following picture has been obtained:
+As we can see, VTune marks the most CPU consuming task as "Outside any known module", and lots of lines are grayed out and marked "unreliable" when pointed with a mouse. But we already know from the Advisor that we should expect "evolve_interior" to be a hotspot and not some outside module. It looks like we do not have proper access to hardware counters on Intel machine, so we went to a local laptop (Intel Core i7 9750H (6 cores), 16GB RAM, NVME) to see more detailed results. We ran it with the similar command: `mpirun -np 4 vtune -collect uarch-exploration -knob collect-memory-bandwidth=true -trace-mpi -result-dir result_mpi_ua_modified -app-working-dir /home/lleon95/Git/P2.13_Final_Assignment/heat-equation/c -- /home/lleon95/Git/P2.13_Final_Assignment/heat-equation/c/heat_mpi`
+
+Thus the following picture has been obtained:
 
 ![](./img/vtune/original_bottomup_uarc.png)
 
@@ -12,11 +20,11 @@ Now we do not have any "Outside any known module" and can see that the function 
 
 ![](img/vtune/original_memory_summary.png)
 
-We see that the bandwidth we get is rather high, around 28 GB/sec.
+We see that the bandwidth we get is rather high, around 28 GB/sec out of 33 GB/s.
 
 ![](img/vtune/original_summary_the.png)
 
-The CPU utilization seems low, but that is because the software detects all available CPUs while we couldn't run the code on 6 cores due to how the distribution of the data is implemented. So we were only using 4 cores and got effective utilization of 3.623.
+The CPU utilization seems low, but that is because the software detects all available CPUs while we couldn't run the code on 6 cores due to how the distribution of the data is implemented. So we were only using 4 cores and got effective utilization of 3.623 (90.5%).
 
 
 
@@ -58,7 +66,7 @@ We can see that we actually lowered the bandwidth from 28 GB/sec to 24:
 
 ![](img/vtune/modified_2_summary_memory.png)
 
-So, at the end we see that we moved the problem from  evolve_interior to memcpy:
+So, at the end we see that we moved the problem from  evolve_interior to memcpy (which now has to move the memory and use CPU resources for that):
 
 ![](img/vtune/modified_2_bottomup_uarch.png)
 
