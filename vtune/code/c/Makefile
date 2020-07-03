@@ -23,7 +23,7 @@ endif
 
 ifeq ("$(BUILD_INTEL)", "1")
   CC=mpiicc
-  CCFLAGS=-g -O2 -Wall -xCORE-AVX512 -qopt-zmm-usage=high
+  CCFLAGS=-g -O2 -Wall -xHost
 else
   CC=mpicc
   CCFLAGS=-O3 -Wall 

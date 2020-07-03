@@ -1,10 +1,10 @@
-#include <png.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include "pngwriter.h"
 
 #ifdef WITH_PNG
+#include <png.h>
 /* Datatype for RGB pixel */
 typedef struct {
     uint8_t red;
