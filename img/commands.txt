@@ -1,9 +1,0 @@
-Collect results
-
-mpirun -np 8 vtune -collect hotspots -k sampling-mode=hw -trace-mpi -result-dir result_mpi -app-working-dir /home/${USER}/P2.13_Final_Assignment/heat-equation/c -- /home/${USER}/P2.13_Final_Assignment/heat-equation/c/heat_mpi
-
-mpirun -np 8 vtune -collect uarch-exploration -knob collect-memory-bandwidth=true -trace-mpi -result-dir result_mpi_ua -app-working-dir /home/u44111/P2.13_Final_Assignment/heat-equation/c -- /home/u44111/P2.13_Final_Assignment/heat-equation/c/heat_mpi
-
-# Laptop LLEON
-
-pirun -np 4 vtune -collect uarch-exploration -knob collect-memory-bandwidth=true -trace-mpi -result-dir result_mpi_ua_modified -app-working-dir /home/lleon95/Git/P2.13_Final_Assignment/heat-equation/c -- /home/lleon95/Git/P2.13_Final_Assignment/heat-equation/c/heat_mpi
