@@ -65,8 +65,8 @@ void evolve_interior(field *curr, field *prev, double a, double dt)
   
     const int paddedblocksize = blocksize + 2;
   
-    double cash_friendly_block[3 * paddedblocksize] __attribute__ ((aligned (64)));
-    double cash_friendly_tinyblock[3][paddedblocksize] __attribute__ ((aligned (64)));
+    double cache_friendly_block[3 * paddedblocksize] __attribute__ ((aligned (64)));
+    double cache_friendly_tinyblock[3][paddedblocksize] __attribute__ ((aligned (64)));
 
     double *cache[3];
     cache[0] = (double *)_mm_malloc(row_width * sizeof(double), 64);
@@ -94,9 +94,9 @@ void evolve_interior(field *curr, field *prev, double a, double dt)
         for (j = 2; j < stop_condition; j+=blocksize) {
           //first copy into the block
           
-            memcpy(&cash_friendly_block[0], &cache[0][j-1], paddedblocksize * sizeof(double));
-            memcpy(&cash_friendly_block[paddedblocksize], &cache[1][j-1], paddedblocksize * sizeof(double));
-            memcpy(&cash_friendly_block[2 * paddedblocksize], &cache[2][j-1], paddedblocksize * sizeof(double));
+            memcpy(&cache_friendly_block[0], &cache[0][j-1], paddedblocksize * sizeof(double));
+            memcpy(&cache_friendly_block[paddedblocksize], &cache[1][j-1], paddedblocksize * sizeof(double));
+            memcpy(&cache_friendly_block[2 * paddedblocksize], &cache[2][j-1], paddedblocksize * sizeof(double));
             
             for(j_small=0; j_small < blocksize; j_small++) {
               ic = (paddedblocksize + 1) + j_small; // row: 10
@@ -106,31 +106,31 @@ void evolve_interior(field *curr, field *prev, double a, double dt)
               il = (paddedblocksize) + j_small;
               igc = idx(i, j + j_small, width);
               
-                curr->data[igc] = cash_friendly_block[ic] + adt *
-                            ((cash_friendly_block[iu] -
-                                2.0 * cash_friendly_block[ic] +
-                                cash_friendly_block[id]) * dx2 +
-                            (cash_friendly_block[ir] -
-                                2.0 * cash_friendly_block[ic] +
-                                cash_friendly_block[il]) * dy2);
+                curr->data[igc] = cache_friendly_block[ic] + adt *
+                            ((cache_friendly_block[iu] -
+                                2.0 * cache_friendly_block[ic] +
+                                cache_friendly_block[id]) * dx2 +
+                            (cache_friendly_block[ir] -
+                                2.0 * cache_friendly_block[ic] +
+                                cache_friendly_block[il]) * dy2);
             }
           
         }
         
         size_t remainder = curr->ny + 1 - stop_condition;
-        memcpy(cash_friendly_tinyblock[0], &prev->data[idx(i-1, stop_condition - 1, width)], remainder);
-        memcpy(cash_friendly_tinyblock[1], &prev->data[idx(i, stop_condition - 1, width)], remainder);
-        memcpy(cash_friendly_tinyblock[2], &prev->data[idx(i+1, stop_condition - 1, width)], remainder);
+        memcpy(cache_friendly_tinyblock[0], &prev->data[idx(i-1, stop_condition - 1, width)], remainder);
+        memcpy(cache_friendly_tinyblock[1], &prev->data[idx(i, stop_condition - 1, width)], remainder);
+        memcpy(cache_friendly_tinyblock[2], &prev->data[idx(i+1, stop_condition - 1, width)], remainder);
       
         for(j = stop_condition; j < curr->ny; ++j) {
             igc = idx(i, j + j_small, width);
-            curr->data[igc] = cash_friendly_tinyblock[1][j] + adt *
-                               ((cash_friendly_tinyblock[2][j] -
-                                 2.0 * cash_friendly_tinyblock[1][j] +
-                                 cash_friendly_tinyblock[0][j]) * dx2 +
-                                (cash_friendly_tinyblock[1][j+1] -
-                                 2.0 * cash_friendly_tinyblock[1][j] +
-                                 cash_friendly_tinyblock[1][j-1]) * dy2);
+            curr->data[igc] = cache_friendly_tinyblock[1][j] + adt *
+                               ((cache_friendly_tinyblock[2][j] -
+                                 2.0 * cache_friendly_tinyblock[1][j] +
+                                 cache_friendly_tinyblock[0][j]) * dx2 +
+                                (cache_friendly_tinyblock[1][j+1] -
+                                 2.0 * cache_friendly_tinyblock[1][j] +
+                                 cache_friendly_tinyblock[1][j-1]) * dy2);
         }
     }
 
