@@ -3,7 +3,7 @@
 
 Comments about the final project for the P2.12_seed Intel course.
 
-Slides for the exam: https://docs.google.com/presentation/d/1apDs22xZgGGsq-k8EGKaitG8849hjpQ1RuLLe1lKah8/edit?usp=sharing
+Slides for the exam: [here](http://tiny.cc/pq1srz)
 
 **Goal**: Analyze the [MPI heat equation C code](https://repository.prace-ri.eu/git/CodeVault/training-material/parallel-programming/MPI/-/tree/master/heat-equation/c) with the Intel tools:
 
