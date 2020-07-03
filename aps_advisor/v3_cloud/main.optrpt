@@ -1,0 +1,110 @@
+Intel(R) Advisor can now assist with vectorization and show optimization
+  report messages with your source code.
+See "https://software.intel.com/en-us/intel-advisor-xe" for details.
+
+Intel(R) C Intel(R) 64 Compiler for applications running on Intel(R) 64, Version 2021.1 Beta Build 20200602
+
+Compiler options: -I/home/u44098/include -I/glob/development-tools/versions/oneapi/beta07/inteloneapi/mpi/2021.1-beta07/include -g -Ofast -Wall -Wextra -xcore-AVX512 -qopt-zmm-usage=high -no-prec-div -qopenmp-simd -qopt-report=5 -qopt-report-phase=all -c -o main.o
+
+    Report from: Interprocedural optimizations [ipo]
+
+  WHOLE PROGRAM (SAFE) [EITHER METHOD]: false
+  WHOLE PROGRAM (SEEN) [TABLE METHOD]: false
+  WHOLE PROGRAM (READ) [OBJECT READER METHOD]: false
+
+INLINING OPTION VALUES:
+  -inline-factor: 100
+  -inline-min-size: 30
+  -inline-max-size: 230
+  -inline-max-total-size: 2000
+  -inline-max-per-routine: 10000
+  -inline-max-per-compile: 500000
+
+In the inlining report below:
+   "sz" refers to the "size" of the routine. The smaller a routine's size,
+      the more likely it is to be inlined.
+   "isz" refers to the "inlined size" of the routine. This is the amount
+      the calling routine will grow if the called routine is inlined into it.
+      The compiler generally limits the amount a routine can grow by having
+      routines inlined into it.
+
+Begin optimization report for: main(int, char **)
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (main(int, char **)) [1/2=50.0%] main.c(12,1)
+  -> EXTERN: (31,5) MPI_Init(int *, char ***)
+  -> EXTERN: (33,5) initialize(int, char **, field *, field *, int *, parallel_data *, int *)
+  -> EXTERN: (37,5) write_field(field *, int, parallel_data *)
+  -> EXTERN: (46,19) MPI_Wtime(void)
+  -> EXTERN: (50,9) exchange_init(field *, parallel_data *)
+  -> EXTERN: (51,9) evolve_interior(field *, field *, double, double)
+  -> EXTERN: (52,9) exchange_finalize(parallel_data *)
+  -> EXTERN: (53,9) evolve_edges(field *, field *, double, double)
+  -> EXTERN: (55,13) write_field(field *, int, parallel_data *)
+  -> EXTERN: (59,13) write_restart(field *, parallel_data *, int)
+  -> EXTERN: (63,9) swap_fields(field *, field *)
+  -> EXTERN: (68,9) printf(const char *__restrict__, ...)
+  -> EXTERN: (68,51) MPI_Wtime(void)
+  -> EXTERN: (69,9) printf(const char *__restrict__, ...)
+  -> INLINE (MANUAL): (70,39) idx(int, int, int) (isz = 0) (sz = 9)
+  -> EXTERN: (73,5) write_field(field *, int, parallel_data *)
+  -> EXTERN: (75,5) finalize(field *, field *, parallel_data *)
+  -> EXTERN: (76,5) MPI_Finalize(void)
+
+
+    Report from: Loop nest, Vector & Auto-parallelization optimizations [loop, vec, par]
+
+
+LOOP BEGIN at main.c(49,5)
+   remark #15382: vectorization support: call to function exchange_init(field *, parallel_data *) cannot be vectorized   [ main.c(50,9) ]
+   remark #15382: vectorization support: call to function evolve_interior(field *, field *, double, double) cannot be vectorized   [ main.c(51,9) ]
+   remark #15382: vectorization support: call to function exchange_finalize(parallel_data *) cannot be vectorized   [ main.c(52,9) ]
+   remark #15382: vectorization support: call to function evolve_edges(field *, field *, double, double) cannot be vectorized   [ main.c(53,9) ]
+   remark #15382: vectorization support: call to function write_field(field *, int, parallel_data *) cannot be vectorized   [ main.c(55,13) ]
+   remark #15382: vectorization support: call to function write_restart(field *, parallel_data *, int) cannot be vectorized   [ main.c(59,13) ]
+   remark #15382: vectorization support: call to function swap_fields(field *, field *) cannot be vectorized   [ main.c(63,9) ]
+   remark #15344: loop was not vectorized: vector dependence prevents vectorization
+   remark #25456: Number of Array Refs Scalar Replaced In Loop: 1
+LOOP END
+
+    Report from: Code generation optimizations [cg]
+
+main.c(12,1):remark #34051: REGISTER ALLOCATION : [main] main.c:12
+
+    Hardware registers
+        Reserved     :    2[ rsp rip]
+        Available    :   63[ rax rdx rcx rbx rbp rsi rdi r8-r15 mm0-mm7 zmm0-zmm31 k0-k7]
+        Callee-save  :    6[ rbx rbp r12-r15]
+        Assigned     :   15[ rax rdx rcx rsi rdi r8-r9 r12-r13 zmm0-zmm5]
+        
+    Routine temporaries
+        Total         :     108
+            Global    :      17
+            Local     :      91
+        Regenerable   :      47
+        Spilled       :       4
+        
+    Routine stack
+        Variables     :     184 bytes*
+            Reads     :      13 [7.42e+00 ~ 7.4%]
+            Writes    :       5 [3.24e+00 ~ 3.2%]
+        Spills        :      16 bytes*
+            Reads     :       4 [2.67e+00 ~ 2.7%]
+            Writes    :       3 [1.00e+00 ~ 1.0%]
+    
+    Notes
+    
+        *Non-overlapping variables and spills may share stack space,
+         so the total stack size might be less than this.
+    
+
+===========================================================================
+
+Begin optimization report for: idx(int, int, int)
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (idx(int, int, int)) heat.h(42,1)
+
+===========================================================================

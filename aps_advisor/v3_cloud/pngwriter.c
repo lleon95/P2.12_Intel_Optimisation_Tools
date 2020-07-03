@@ -1,8 +1,9 @@
-#include <png.h>
+#include "png.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include "pngwriter.h"
+
 
 /* Datatype for RGB pixel */
 typedef struct {
@@ -12,10 +13,7 @@ typedef struct {
 } pixel_t;
 
 
-void cmap(double value, const double scaling, const double maxval,
-          pixel_t *pix);
-
-static int heat_colormap[256][3] = {
+static int heat_colormap[258][3] = {
     {59, 76, 192}, {59, 76, 192}, {60, 78, 194}, {61, 80, 195},
     {62, 81, 197}, {64, 83, 198}, {65, 85, 200}, {66, 87, 201},
     {67, 88, 203}, {68, 90, 204}, {69, 92, 206}, {71, 93, 207},
@@ -79,7 +77,7 @@ static int heat_colormap[256][3] = {
     {202, 59, 55}, {200, 57, 54}, {199, 54, 53}, {198, 52, 51},
     {196, 49, 50}, {195, 46, 49}, {193, 43, 48}, {192, 40, 47},
     {191, 37, 46}, {189, 34, 44}, {188, 30, 43}, {186, 26, 42},
-    {185, 22, 41}, {183, 17, 40}, {182, 11, 39}, {180, 4, 38}
+    {185, 22, 41}, {183, 17, 40}, {182, 11, 39}, {180, 4, 38}, {0,0,255}, {255,0,0}
 };
 
 
@@ -94,15 +92,17 @@ static int heat_colormap[256][3] = {
  *                  layout. That is, if 'f' is given, then rows
  *                  and columns are swapped.
  */
+
+
 int save_png(double *data, const int height, const int width,
-             const char *fname, const char lang)
+             const char *fname)//, const char lang)
 {
     FILE *fp;
     png_structp pngstruct_ptr = NULL;
     png_infop pnginfo_ptr = NULL;
     png_byte **row_pointers = NULL;
     int i, j;
-
+    int end_loop = height;    // added
     /* Default return status is failure */
     int status = -1;
 
@@ -141,34 +141,33 @@ int save_png(double *data, const int height, const int width,
 
     row_pointers = png_malloc(pngstruct_ptr, height * sizeof(png_byte *));
 
-    for (i = 0; i < height; i++) {
+    for (i = 0; i < end_loop; i++) {    // replaced
         png_byte *row = png_malloc(pngstruct_ptr,
                                    sizeof(uint8_t) * width * pixel_size);
         row_pointers[i] = row;
+        /* Branch according to the C memory layout */ // __assume_aligned(data, 64);
+		#pragma omp simd
+		#pragma vector always nodynamic_align
+		for (j = 0; j < width; j++) {
+			//pixel_t pixel;
+			/* Scale the values so that values between 0 and
+			* 100 degrees are mapped to values between 0 and 255 */
+			//cmap(data[j + i * width], 2.55, 0.0, &pixel);
 
-        /* Branch according to the memory layout */
-        if (lang == 'c' || lang == 'C') {
-            for (j = 0; j < width; j++) {
-                pixel_t pixel;
-                /* Scale the values so that values between 0 and
-                 * 100 degrees are mapped to values between 0 and 255 */
-                cmap(data[j + i * width], 2.55, 0.0, &pixel);
-                *row++ = pixel.red;
-                *row++ = pixel.green;
-                *row++ = pixel.blue;
-            }
-        } else if (lang == 'f' || lang == 'F') {
-            for (j = 0; j < width; j++) {
-                pixel_t pixel;
-                cmap(data[i + j * height], 2.55, 0.0, &pixel);
-                *row++ = pixel.red;
-                *row++ = pixel.green;
-                *row++ = pixel.blue;
-            }
-        } else {
-            fprintf(stderr, "Unknown memory order %c for pngwriter!\n", lang);
-            exit(EXIT_FAILURE);
-        }
+			int ival = (int)(data[j + i * width] * 2.55);
+			
+			if (ival < 0) {
+				/* Colder than colorscale, substitute blue */
+				ival = 256;
+			}
+			else if (ival > 255) {
+				/* Hotter than colormap, substitute red */
+				ival = 257;
+			}
+			row[3*j]   = heat_colormap[ival][0];
+			row[3*j+1] = heat_colormap[ival][1];
+			row[3*j+2] = heat_colormap[ival][2];
+		}
     }
 
     png_init_io(pngstruct_ptr, fp);
@@ -178,7 +177,7 @@ int save_png(double *data, const int height, const int width,
 
     status = 0;
 
-    for (i = 0; i < height; i++) {
+    for (i = 0; i < height; i++) {    
         png_free(pngstruct_ptr, row_pointers[i]);
     }
     png_free(pngstruct_ptr, row_pointers);
@@ -192,30 +191,11 @@ pngstruct_create_failed:
 fopen_failed:
     return status;
 }
-
+ 
 /*
- * This routine sets the RGB values for the pixel_t structure using
- * the colormap data heat_colormap. If the value is outside the
- * acceptable png values 0, 255 blue or red color is used instead.
- */
-void cmap(double value, const double scaling, const double offset,
-          pixel_t *pix)
-{
-    int ival;
-
-    ival = (int)(value * scaling + offset);
-    if (ival < 0) {             /* Colder than colorscale, substitute blue */
-        pix->red = 0;
-        pix->green = 0;
-        pix->blue = 255;
-    } else if (ival > 255) {
-        pix->red = 255;         /* Hotter than colormap, substitute red */
-        pix->green = 0;
-        pix->blue = 0;
-    } else {
-        pix->red = heat_colormap[ival][0];
-        pix->green = heat_colormap[ival][1];
-        pix->blue = heat_colormap[ival][2];
-    }
-}
-
+static int heat_colormap[3][258] = {
+	{59, 59, 60, 61, 62, 64, 65, 66, 67, 68, 69, 71, 72, 73, 74, 75, 77, 78, 79, 80, 82, 83, 84, 85, 87, 88, 89, 90, 92, 93, 94, 96, 97, 98, 100, 101, 102, 103, 105, 106, 107, 109, 110, 111, 113, 114, 116, 117, 118, 120, 121, 122, 124, 125, 127, 128, 129, 131, 132, 133, 135, 136, 138, 139, 140, 142, 143, 145, 146, 147, 149, 150, 152, 153, 154, 156, 157, 158, 160, 161, 163, 164, 165, 167, 168, 169, 171, 172, 173, 175, 176, 177, 179, 180, 181, 183, 184, 185, 186, 188, 189, 190, 191, 193, 194, 195, 196, 198, 199, 200, 201, 202, 204, 205, 206, 207, 208, 209, 210, 211, 212, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 233, 234, 235, 236, 237, 237, 238, 239, 239, 240, 240, 241, 242, 242, 243, 243, 243, 244, 244, 245, 245, 245, 246, 246, 246, 246, 247, 247, 247, 247, 247, 247, 247, 247, 247, 247, 247, 247, 247, 247, 247, 247, 247, 247, 246, 246, 246, 246, 245, 245, 245, 244, 244, 243, 243, 242, 242, 241, 241, 240, 240, 239, 239, 238, 237, 237, 236, 235, 235, 234, 233, 232, 231, 230, 230, 229, 228, 227, 226, 225, 224, 223, 222, 221, 220, 219, 218, 217, 215, 214, 213, 212, 211, 210, 208, 207, 206, 204, 203, 202, 200, 199, 198, 196, 195, 193, 192, 191, 189, 188, 186, 185, 183, 182, 180, 0, 255},
+	{76, 76, 78, 80, 81, 83, 85, 87, 88, 90, 92, 93, 95, 97, 99, 100, 102, 104, 105, 107, 109, 110, 112, 114, 115, 117, 119, 120, 122, 124, 125, 127, 129, 130, 132, 133, 135, 137, 138, 140, 141, 143, 144, 146, 147, 149, 150, 152, 153, 155, 156, 157, 159, 160, 162, 163, 164, 166, 167, 168, 170, 171, 172, 174, 175, 176, 177, 179, 180, 181, 182, 183, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 203, 204, 205, 206, 207, 207, 208, 209, 209, 210, 211, 211, 212, 213, 213, 214, 214, 215, 215, 216, 216, 217, 217, 217, 218, 218, 218, 219, 219, 219, 220, 220, 220, 220, 220, 220, 221, 221, 220, 220, 219, 219, 218, 218, 217, 216, 216, 215, 215, 214, 213, 212, 212, 211, 210, 209, 208, 208, 207, 206, 205, 204, 203, 202, 201, 200, 199, 198, 197, 196, 195, 194, 193, 192, 190, 189, 188, 187, 186, 184, 183, 182, 181, 179, 178, 177, 175, 174, 172, 171, 170, 168, 167, 165, 164, 162, 161, 159, 158, 156, 155, 153, 151, 150, 148, 147, 145, 143, 142, 140, 138, 136, 135, 133, 131, 129, 128, 126, 124, 122, 120, 118, 117, 115, 113, 111, 109, 107, 105, 103, 101, 99, 97, 95, 93, 91, 89, 87, 85, 82, 80, 78, 76, 74, 71, 69, 67, 64, 62, 59, 57, 54, 52, 49, 46, 43, 40, 37, 34, 30, 26, 22, 17, 11, 4, 0, 0},
+	{192, 192, 194, 195, 197, 198, 200, 201, 203, 204, 206, 207, 209, 210, 211, 213, 214, 215, 217, 218, 219, 221, 222, 223, 224, 225, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 240, 241, 242, 243, 244, 244, 245, 246, 246, 247, 248, 248, 249, 249, 250, 250, 251, 251, 252, 252, 252, 253, 253, 253, 254, 254, 254, 254, 254, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 254, 254, 254, 254, 254, 253, 253, 253, 252, 252, 252, 251, 251, 250, 250, 249, 249, 248, 247, 247, 246, 246, 245, 244, 243, 243, 242, 241, 240, 239, 239, 238, 237, 236, 235, 234, 233, 232, 231, 230, 229, 228, 227, 225, 224, 223, 222, 221, 219, 218, 216, 215, 214, 212, 211, 209, 208, 206, 205, 203, 202, 200, 199, 197, 196, 194, 193, 191, 190, 188, 187, 185, 183, 182, 180, 179, 177, 176, 174, 173, 171, 169, 168, 166, 165, 163, 161, 160, 158, 157, 155, 153, 152, 150, 149, 147, 146, 144, 142, 141, 139, 138, 136, 135, 133, 131, 130, 128, 127, 125, 124, 122, 121, 119, 117, 116, 114, 113, 111, 110, 108, 107, 105, 104, 102, 101, 99, 98, 96, 95, 94, 92, 91, 89, 88, 86, 85, 84, 82, 81, 79, 78, 77, 75, 74, 73, 71, 70, 69, 67, 66, 65, 64, 62, 61, 60, 59, 57, 56, 55, 54, 53, 51, 50, 49, 48, 47, 46, 44, 43, 42, 41, 40, 39, 38, 255, 0}
+};
+*/

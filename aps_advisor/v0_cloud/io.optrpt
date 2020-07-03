@@ -1,0 +1,316 @@
+Intel(R) Advisor can now assist with vectorization and show optimization
+  report messages with your source code.
+See "https://software.intel.com/en-us/intel-advisor-xe" for details.
+
+Intel(R) C Intel(R) 64 Compiler for applications running on Intel(R) 64, Version 19.1 Build 20200306
+
+Compiler options: -I/home/u44098/include -I/glob/development-tools/versions/oneapi/beta06/inteloneapi/mpi/2021.1-beta06/include -O2 -g -Wall -qopt-report=5 -qopt-report-phase=all -c -o io.o
+
+    Report from: Interprocedural optimizations [ipo]
+
+  WHOLE PROGRAM (SAFE) [EITHER METHOD]: false
+  WHOLE PROGRAM (SEEN) [TABLE METHOD]: false
+  WHOLE PROGRAM (READ) [OBJECT READER METHOD]: false
+
+INLINING OPTION VALUES:
+  -inline-factor: 100
+  -inline-min-size: 30
+  -inline-max-size: 230
+  -inline-max-total-size: 2000
+  -inline-max-per-routine: 10000
+  -inline-max-per-compile: 500000
+
+In the inlining report below:
+   "sz" refers to the "size" of the routine. The smaller a routine's size,
+      the more likely it is to be inlined.
+   "isz" refers to the "inlined size" of the routine. This is the amount
+      the calling routine will grow if the called routine is inlined into it.
+      The compiler generally limits the amount a routine can grow by having
+      routines inlined into it.
+
+Begin optimization report for: idx(int, int, int)
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (idx(int, int, int)) heat.h(42,1)
+
+===========================================================================
+
+Begin optimization report for: write_field(field *, int, parallel_data *)
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (write_field(field *, int, parallel_data *)) [2/5=40.0%] io.c(15,1)
+  -> EXTERN: (33,21) malloc_2d(int, int)
+  -> EXTERN: (35,13) memcpy(void *__restrict__, const void *__restrict__, size_t)
+  -> INLINE (MANUAL): (35,31) idx(int, int, int) (isz = 0) (sz = 9)
+  -> INLINE (MANUAL): (36,41) idx(int, int, int) (isz = 0) (sz = 9)
+  -> EXTERN: (40,13) MPI_Cart_coords(MPI_Comm, int, int, int *)
+  -> EXTERN: (43,13) MPI_Recv(void *, int, MPI_Datatype, int, int, MPI_Comm, MPI_Status *)
+  -> INLINE (MANUAL): (43,33) idx(int, int, int) (isz = 0) (sz = 9)
+  -> EXTERN: (48,9) sprintf(char *__restrict__, const char *__restrict__, ...)
+  -> EXTERN: (49,9) save_png(double *, const int, const int, const char *, const char)
+  -> EXTERN: (50,9) free_2d(double *)
+  -> EXTERN: (53,9) MPI_Ssend(const void *, int, MPI_Datatype, int, int, MPI_Comm)
+
+
+    Report from: Loop nest, Vector & Auto-parallelization optimizations [loop, vec, par]
+
+
+
+Non-optimizable loops:
+
+
+LOOP BEGIN at io.c(34,9)
+   remark #15523: loop was not vectorized: loop control variable i was found, but loop iteration count cannot be computed before executing the loop
+LOOP END
+
+LOOP BEGIN at io.c(39,9)
+   remark #15523: loop was not vectorized: loop control variable p was found, but loop iteration count cannot be computed before executing the loop
+LOOP END
+
+    Report from: Code generation optimizations [cg]
+
+io.c(35,13):remark #34014: optimization advice for memcpy: increase the destination's alignment to 16 (and use __assume_aligned) to speed up library implementation
+io.c(35,13):remark #34014: optimization advice for memcpy: increase the source's alignment to 16 (and use __assume_aligned) to speed up library implementation
+io.c(35,13):remark #34026: call to memcpy implemented as a call to optimized library version
+io.c(15,1):remark #34051: REGISTER ALLOCATION : [write_field] io.c:15
+
+    Hardware registers
+        Reserved     :    2[ rsp rip]
+        Available    :   39[ rax rdx rcx rbx rbp rsi rdi r8-r15 mm0-mm7 zmm0-zmm15]
+        Callee-save  :    6[ rbx rbp r12-r15]
+        Assigned     :   15[ rax rdx rcx rbx rbp rsi rdi r8-r15]
+        
+    Routine temporaries
+        Total         :      78
+            Global    :      19
+            Local     :      59
+        Regenerable   :      17
+        Spilled       :      10
+        
+    Routine stack
+        Variables     :      72 bytes*
+            Reads     :       2 [3.15e+00 ~ 3.1%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+        Spills        :      32 bytes*
+            Reads     :       5 [1.45e+00 ~ 1.4%]
+            Writes    :       5 [1.45e+00 ~ 1.4%]
+    
+    Notes
+    
+        *Non-overlapping variables and spills may share stack space,
+         so the total stack size might be less than this.
+    
+
+===========================================================================
+
+Begin optimization report for: read_field(field *, field *, char *, parallel_data *)
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (read_field(field *, field *, char *, parallel_data *)) [3/5=60.0%] io.c(64,1)
+  -> EXTERN: (74,10) fopen(const char *__restrict__, const char *__restrict__)
+  -> EXTERN: (76,13) fscanf(FILE *__restrict__, const char *__restrict__, ...)
+  -> EXTERN: (78,9) fprintf(FILE *__restrict__, const char *__restrict__, ...)
+  -> EXTERN: (79,9) MPI_Abort(MPI_Comm, int)
+  -> EXTERN: (82,5) parallel_setup(parallel_data *, int, int)
+  -> EXTERN: (83,5) set_field_dimensions(field *, int, int, parallel_data *)
+  -> EXTERN: (84,5) set_field_dimensions(field *, int, int, parallel_data *)
+  -> EXTERN: (89,9) malloc_2d(int, int)
+  -> EXTERN: (91,9) malloc_2d(int, int)
+  -> EXTERN: (95,21) malloc_2d(int, int)
+  -> EXTERN: (100,25) fscanf(FILE *__restrict__, const char *__restrict__, ...)
+  -> INLINE (MANUAL): (100,54) idx(int, int, int) (isz = 0) (sz = 9)
+  -> EXTERN: (105,13) memcpy(void *__restrict__, const void *__restrict__, size_t)
+  -> INLINE (MANUAL): (105,40) idx(int, int, int) (isz = 0) (sz = 9)
+  -> INLINE (MANUAL): (106,31) idx(int, int, int) (isz = 0) (sz = 9)
+  -> EXTERN: (110,13) MPI_Cart_coords(MPI_Comm, int, int, int *)
+  -> EXTERN: (113,13) MPI_Send(const void *, int, MPI_Datatype, int, int, MPI_Comm)
+  -> INLINE (MANUAL): (113,33) idx(int, int, int) (isz = 0) (sz = 9)
+  -> EXTERN: (118,9) MPI_Recv(void *, int, MPI_Datatype, int, int, MPI_Comm, MPI_Status *)
+  -> INLINE (MANUAL): (125,28) idx(int, int, int) (isz = 0) (sz = 9)
+  -> INLINE (MANUAL): (126,32) idx(int, int, int) (isz = 0) (sz = 9)
+  -> INLINE (MANUAL): (127,28) idx(int, int, int) (isz = 0) (sz = 9)
+  -> INLINE (MANUAL): (128,32) idx(int, int, int) (isz = 0) (sz = 9)
+  -> INLINE (MANUAL): (131,28) idx(int, int, int) (isz = 0) (sz = 9)
+  -> INLINE (MANUAL): (132,44) idx(int, int, int) (isz = 0) (sz = 9)
+  -> INLINE (MANUAL): (133,28) idx(int, int, int) (isz = 0) (sz = 9)
+  -> INLINE (MANUAL): (134,32) idx(int, int, int) (isz = 0) (sz = 9)
+  -> EXTERN: (137,5) copy_field(field *, field *)
+  -> EXTERN: (140,9) free_2d(double *)
+  -> EXTERN: (143,5) fclose(FILE *)
+
+
+    Report from: Loop nest, Vector & Auto-parallelization optimizations [loop, vec, par]
+
+
+LOOP BEGIN at io.c(124,5)
+   remark #15344: loop was not vectorized: vector dependence prevents vectorization
+   remark #15346: vector dependence: assumed OUTPUT dependence between temperature1->data[i*(temperature1->ny+2)] (125:9) and temperature1->data[i*(temperature1->ny+2)+temperature1->ny+1] (127:9)
+   remark #15346: vector dependence: assumed OUTPUT dependence between temperature1->data[i*(temperature1->ny+2)+temperature1->ny+1] (127:9) and temperature1->data[i*(temperature1->ny+2)] (125:9)
+LOOP END
+
+LOOP BEGIN at io.c(130,5)
+   remark #15344: loop was not vectorized: vector dependence prevents vectorization
+   remark #15346: vector dependence: assumed OUTPUT dependence between temperature1->data[j] (131:9) and temperature1->data[(temperature1->nx+1)*(temperature1->ny+2)+j] (133:9)
+   remark #15346: vector dependence: assumed OUTPUT dependence between temperature1->data[(temperature1->nx+1)*(temperature1->ny+2)+j] (133:9) and temperature1->data[j] (131:9)
+   remark #25439: unrolled with remainder by 2  
+LOOP END
+
+LOOP BEGIN at io.c(130,5)
+<Remainder>
+LOOP END
+
+
+Non-optimizable loops:
+
+
+LOOP BEGIN at io.c(98,9)
+   remark #15536: loop was not vectorized: inner loop throttling prevents vectorization of this outer loop. Refer to inner loop message for more details.   [ io.c(99,13) ]
+
+   LOOP BEGIN at io.c(99,13)
+      remark #15523: loop was not vectorized: loop control variable j was found, but loop iteration count cannot be computed before executing the loop
+   LOOP END
+LOOP END
+
+LOOP BEGIN at io.c(104,9)
+   remark #15523: loop was not vectorized: loop control variable i was found, but loop iteration count cannot be computed before executing the loop
+LOOP END
+
+LOOP BEGIN at io.c(109,9)
+   remark #15523: loop was not vectorized: loop control variable p was found, but loop iteration count cannot be computed before executing the loop
+LOOP END
+
+    Report from: Code generation optimizations [cg]
+
+io.c(105,13):remark #34014: optimization advice for memcpy: increase the destination's alignment to 16 (and use __assume_aligned) to speed up library implementation
+io.c(105,13):remark #34014: optimization advice for memcpy: increase the source's alignment to 16 (and use __assume_aligned) to speed up library implementation
+io.c(105,13):remark #34026: call to memcpy implemented as a call to optimized library version
+io.c(64,1):remark #34051: REGISTER ALLOCATION : [read_field] io.c:64
+
+    Hardware registers
+        Reserved     :    2[ rsp rip]
+        Available    :   39[ rax rdx rcx rbx rbp rsi rdi r8-r15 mm0-mm7 zmm0-zmm15]
+        Callee-save  :    6[ rbx rbp r12-r15]
+        Assigned     :   15[ rax rdx rcx rbx rbp rsi rdi r8-r15]
+        
+    Routine temporaries
+        Total         :     182
+            Global    :      44
+            Local     :     138
+        Regenerable   :      26
+        Spilled       :       7
+        
+    Routine stack
+        Variables     :      16 bytes*
+            Reads     :      16 [6.27e+00 ~ 6.3%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+        Spills        :       8 bytes*
+            Reads     :       2 [2.61e-01 ~ 0.3%]
+            Writes    :       2 [2.61e-01 ~ 0.3%]
+    
+    Notes
+    
+        *Non-overlapping variables and spills may share stack space,
+         so the total stack size might be less than this.
+    
+
+===========================================================================
+
+Begin optimization report for: write_restart(field *, parallel_data *, int)
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (write_restart(field *, parallel_data *, int)) [4/5=80.0%] io.c(149,1)
+  -> EXTERN: (154,5) MPI_File_open(MPI_Comm, const char *, int, MPI_Info, MPI_File *)
+  -> EXTERN: (157,9) MPI_File_write(MPI_File, const void *, int, MPI_Datatype, MPI_Status *)
+  -> EXTERN: (159,9) MPI_File_write(MPI_File, const void *, int, MPI_Datatype, MPI_Status *)
+  -> EXTERN: (161,9) MPI_File_write(MPI_File, const void *, int, MPI_Datatype, MPI_Status *)
+  -> EXTERN: (165,5) MPI_File_set_view(MPI_File, MPI_Offset, MPI_Datatype, MPI_Datatype, const char *, MPI_Info)
+  -> EXTERN: (167,5) MPI_File_write_at_all(MPI_File, MPI_Offset, const void *, int, MPI_Datatype, MPI_Status *)
+  -> EXTERN: (169,5) MPI_File_close(MPI_File *)
+
+
+    Report from: Code generation optimizations [cg]
+
+io.c(149,1):remark #34051: REGISTER ALLOCATION : [write_restart] io.c:149
+
+    Hardware registers
+        Reserved     :    2[ rsp rip]
+        Available    :   39[ rax rdx rcx rbx rbp rsi rdi r8-r15 mm0-mm7 zmm0-zmm15]
+        Callee-save  :    6[ rbx rbp r12-r15]
+        Assigned     :    8[ rdx rcx rbp rsi rdi r8-r9 r12]
+        
+    Routine temporaries
+        Total         :      59
+            Global    :       9
+            Local     :      50
+        Regenerable   :      27
+        Spilled       :       2
+        
+    Routine stack
+        Variables     :      12 bytes*
+            Reads     :       5 [5.43e+00 ~ 5.4%]
+            Writes    :       1 [2.04e+00 ~ 2.0%]
+        Spills        :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+    
+    Notes
+    
+        *Non-overlapping variables and spills may share stack space,
+         so the total stack size might be less than this.
+    
+
+===========================================================================
+
+Begin optimization report for: read_restart(field *, parallel_data *, int *)
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (read_restart(field *, parallel_data *, int *)) [5/5=100.0%] io.c(175,1)
+  -> EXTERN: (182,5) MPI_File_open(MPI_Comm, const char *, int, MPI_Info, MPI_File *)
+  -> EXTERN: (186,5) MPI_File_read_all(MPI_File, void *, int, MPI_Datatype, MPI_Status *)
+  -> EXTERN: (187,5) MPI_File_read_all(MPI_File, void *, int, MPI_Datatype, MPI_Status *)
+  -> EXTERN: (188,5) MPI_File_read_all(MPI_File, void *, int, MPI_Datatype, MPI_Status *)
+  -> EXTERN: (190,5) parallel_setup(parallel_data *, int, int)
+  -> EXTERN: (192,5) set_field_dimensions(field *, int, int, parallel_data *)
+  -> EXTERN: (193,5) allocate_field(field *)
+  -> EXTERN: (197,5) MPI_File_set_view(MPI_File, MPI_Offset, MPI_Datatype, MPI_Datatype, const char *, MPI_Info)
+  -> EXTERN: (199,5) MPI_File_read_at_all(MPI_File, MPI_Offset, void *, int, MPI_Datatype, MPI_Status *)
+  -> EXTERN: (201,5) MPI_File_close(MPI_File *)
+
+
+    Report from: Code generation optimizations [cg]
+
+io.c(175,1):remark #34051: REGISTER ALLOCATION : [read_restart] io.c:175
+
+    Hardware registers
+        Reserved     :    2[ rsp rip]
+        Available    :   39[ rax rdx rcx rbx rbp rsi rdi r8-r15 mm0-mm7 zmm0-zmm15]
+        Callee-save  :    6[ rbx rbp r12-r15]
+        Assigned     :    9[ rdx rcx rbx rbp rsi rdi r8-r9 r12]
+        
+    Routine temporaries
+        Total         :      70
+            Global    :      10
+            Local     :      60
+        Regenerable   :      29
+        Spilled       :       3
+        
+    Routine stack
+        Variables     :      16 bytes*
+            Reads     :       9 [1.22e+01 ~ 12.2%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+        Spills        :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+    
+    Notes
+    
+        *Non-overlapping variables and spills may share stack space,
+         so the total stack size might be less than this.
+    
+
+===========================================================================

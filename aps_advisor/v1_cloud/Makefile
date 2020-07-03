@@ -1,12 +1,15 @@
-CC=mpicc
-CCFLAGS=-O3 -Wall 
-LDFLAGS=
+CC=mpiicc
+CCFLAGS=-g -Ofast -Wall -Wextra -xcore-AVX512 -qopt-zmm-usage=high -no-prec-div
+LDFLAGS=-L/home/u44098/lib
 LIBS=-lpng -lm
 
 EXE=heat_mpi
 OBJS=core.o setup.o utilities.o io.o main.o
 OBJS_PNG=pngwriter.o
 
+ifeq ($(REPORT), yes)
+	CCFLAGS+=-qopt-report=5 -qopt-report-phase=all
+endif
 
 all: $(EXE)
 
@@ -24,8 +27,9 @@ $(EXE): $(OBJS) $(OBJS_PNG)
 	$(CC) $(CCFLAGS) $(OBJS) $(OBJS_PNG) -o $@ $(LDFLAGS) $(LIBS)
 
 %.o: %.c
-	$(C_COMPILER) $(CCFLAGS) -c $< -o $@
+	$(C_COMPILER) $(CCFLAGS) -c $< -o $@ -I/home/u44098/include
 
 .PHONY: clean
 clean:
-	-/bin/rm -f $(EXE) a.out *.o *.png *~
+	-/bin/rm -f $(EXE) a.out *.o *.png *~ HEAT_RESTART.dat
+ 

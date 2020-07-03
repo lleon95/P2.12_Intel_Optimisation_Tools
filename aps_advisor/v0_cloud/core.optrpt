@@ -1,0 +1,281 @@
+Intel(R) Advisor can now assist with vectorization and show optimization
+  report messages with your source code.
+See "https://software.intel.com/en-us/intel-advisor-xe" for details.
+
+Intel(R) C Intel(R) 64 Compiler for applications running on Intel(R) 64, Version 19.1 Build 20200306
+
+Compiler options: -I/home/u44098/include -I/glob/development-tools/versions/oneapi/beta06/inteloneapi/mpi/2021.1-beta06/include -O2 -g -Wall -qopt-report=5 -qopt-report-phase=all -c -o core.o
+
+    Report from: Interprocedural optimizations [ipo]
+
+  WHOLE PROGRAM (SAFE) [EITHER METHOD]: false
+  WHOLE PROGRAM (SEEN) [TABLE METHOD]: false
+  WHOLE PROGRAM (READ) [OBJECT READER METHOD]: false
+
+INLINING OPTION VALUES:
+  -inline-factor: 100
+  -inline-min-size: 30
+  -inline-max-size: 230
+  -inline-max-total-size: 2000
+  -inline-max-per-routine: 10000
+  -inline-max-per-compile: 500000
+
+In the inlining report below:
+   "sz" refers to the "size" of the routine. The smaller a routine's size,
+      the more likely it is to be inlined.
+   "isz" refers to the "inlined size" of the routine. This is the amount
+      the calling routine will grow if the called routine is inlined into it.
+      The compiler generally limits the amount a routine can grow by having
+      routines inlined into it.
+
+Begin optimization report for: idx(int, int, int)
+
+    Report from: Interprocedural optimizations [ipo]
+
+DEAD STATIC FUNCTION: (idx(int, int, int)) heat.h(42,1)
+
+===========================================================================
+
+Begin optimization report for: exchange_finalize(parallel_data *)
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (exchange_finalize(parallel_data *)) [2/5=40.0%] core.c(49,1)
+  -> EXTERN: (50,5) MPI_Waitall(int, MPI_Request *, MPI_Status *)
+
+
+    Report from: Code generation optimizations [cg]
+
+core.c(49,1):remark #34051: REGISTER ALLOCATION : [exchange_finalize] core.c:49
+
+    Hardware registers
+        Reserved     :    2[ rsp rip]
+        Available    :   39[ rax rdx rcx rbx rbp rsi rdi r8-r15 mm0-mm7 zmm0-zmm15]
+        Callee-save  :    6[ rbx rbp r12-r15]
+        Assigned     :    3[ rdx rsi rdi]
+        
+    Routine temporaries
+        Total         :      12
+            Global    :       0
+            Local     :      12
+        Regenerable   :       2
+        Spilled       :       0
+        
+    Routine stack
+        Variables     :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+        Spills        :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+    
+    Notes
+    
+        *Non-overlapping variables and spills may share stack space,
+         so the total stack size might be less than this.
+    
+
+===========================================================================
+
+Begin optimization report for: evolve_interior(field *, field *, double, double)
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (evolve_interior(field *, field *, double, double)) [3/5=60.0%] core.c(55,1)
+  -> INLINE (MANUAL): (69,18) idx(int, int, int) (isz = 0) (sz = 9)
+  -> INLINE (MANUAL): (70,18) idx(int, int, int) (isz = 0) (sz = 9)
+  -> INLINE (MANUAL): (71,18) idx(int, int, int) (isz = 0) (sz = 9)
+  -> INLINE (MANUAL): (72,18) idx(int, int, int) (isz = 0) (sz = 9)
+  -> INLINE (MANUAL): (73,18) idx(int, int, int) (isz = 0) (sz = 9)
+
+
+    Report from: Loop nest, Vector & Auto-parallelization optimizations [loop, vec, par]
+
+
+LOOP BEGIN at core.c(67,5)
+   remark #15541: outer loop was not auto-vectorized: consider using SIMD directive
+
+   LOOP BEGIN at core.c(68,9)
+      remark #15344: loop was not vectorized: vector dependence prevents vectorization
+      remark #15346: vector dependence: assumed FLOW dependence between curr->data[i*width+j] (74:13) and prev->data[i*width+j] (74:13)
+      remark #15346: vector dependence: assumed ANTI dependence between prev->data[i*width+j] (74:13) and curr->data[i*width+j] (74:13)
+   LOOP END
+LOOP END
+
+    Report from: Code generation optimizations [cg]
+
+core.c(55,1):remark #34051: REGISTER ALLOCATION : [evolve_interior] core.c:55
+
+    Hardware registers
+        Reserved     :    2[ rsp rip]
+        Available    :   39[ rax rdx rcx rbx rbp rsi rdi r8-r15 mm0-mm7 zmm0-zmm15]
+        Callee-save  :    6[ rbx rbp r12-r15]
+        Assigned     :   21[ rax rdx rcx rbx rbp rsi rdi r8-r12 r14-r15 zmm0-zmm6]
+        
+    Routine temporaries
+        Total         :      53
+            Global    :      27
+            Local     :      26
+        Regenerable   :       2
+        Spilled       :       5
+        
+    Routine stack
+        Variables     :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+        Spills        :      40 bytes*
+            Reads     :       5 [7.39e-01 ~ 0.7%]
+            Writes    :       5 [7.39e-01 ~ 0.7%]
+    
+    Notes
+    
+        *Non-overlapping variables and spills may share stack space,
+         so the total stack size might be less than this.
+    
+
+===========================================================================
+
+Begin optimization report for: evolve_edges(field *, field *, double, double)
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (evolve_edges(field *, field *, double, double)) [4/5=80.0%] core.c(88,1)
+  -> INLINE (MANUAL): (102,14) idx(int, int, int) (isz = 0) (sz = 9)
+  -> INLINE (MANUAL): (103,14) idx(int, int, int) (isz = 0) (sz = 9)
+  -> INLINE (MANUAL): (104,14) idx(int, int, int) (isz = 0) (sz = 9)
+  -> INLINE (MANUAL): (105,14) idx(int, int, int) (isz = 0) (sz = 9)
+  -> INLINE (MANUAL): (106,14) idx(int, int, int) (isz = 0) (sz = 9)
+  -> INLINE (MANUAL): (117,14) idx(int, int, int) (isz = 0) (sz = 9)
+  -> INLINE (MANUAL): (118,14) idx(int, int, int) (isz = 0) (sz = 9)
+  -> INLINE (MANUAL): (119,14) idx(int, int, int) (isz = 0) (sz = 9)
+  -> INLINE (MANUAL): (120,14) idx(int, int, int) (isz = 0) (sz = 9)
+  -> INLINE (MANUAL): (121,14) idx(int, int, int) (isz = 0) (sz = 9)
+  -> INLINE (MANUAL): (132,14) idx(int, int, int) (isz = 0) (sz = 9)
+  -> INLINE (MANUAL): (133,14) idx(int, int, int) (isz = 0) (sz = 9)
+  -> INLINE (MANUAL): (134,14) idx(int, int, int) (isz = 0) (sz = 9)
+  -> INLINE (MANUAL): (135,14) idx(int, int, int) (isz = 0) (sz = 9)
+  -> INLINE (MANUAL): (136,14) idx(int, int, int) (isz = 0) (sz = 9)
+  -> INLINE (MANUAL): (147,14) idx(int, int, int) (isz = 0) (sz = 9)
+  -> INLINE (MANUAL): (148,14) idx(int, int, int) (isz = 0) (sz = 9)
+  -> INLINE (MANUAL): (149,14) idx(int, int, int) (isz = 0) (sz = 9)
+  -> INLINE (MANUAL): (150,14) idx(int, int, int) (isz = 0) (sz = 9)
+  -> INLINE (MANUAL): (151,14) idx(int, int, int) (isz = 0) (sz = 9)
+
+
+    Report from: Loop nest, Vector & Auto-parallelization optimizations [loop, vec, par]
+
+
+LOOP BEGIN at core.c(101,5)
+   remark #15344: loop was not vectorized: vector dependence prevents vectorization
+   remark #15346: vector dependence: assumed FLOW dependence between curr->data[ic] (107:9) and prev->data[ic] (107:9)
+   remark #15346: vector dependence: assumed ANTI dependence between prev->data[ic] (107:9) and curr->data[ic] (107:9)
+LOOP END
+
+LOOP BEGIN at core.c(116,5)
+   remark #15344: loop was not vectorized: vector dependence prevents vectorization
+   remark #15346: vector dependence: assumed FLOW dependence between curr->data[ic] (122:9) and prev->data[ic] (122:9)
+   remark #15346: vector dependence: assumed ANTI dependence between prev->data[ic] (122:9) and curr->data[ic] (122:9)
+   remark #25456: Number of Array Refs Scalar Replaced In Loop: 1
+LOOP END
+
+LOOP BEGIN at core.c(131,5)
+   remark #15344: loop was not vectorized: vector dependence prevents vectorization
+   remark #15346: vector dependence: assumed FLOW dependence between curr->data[ic] (137:9) and prev->data[ic] (137:9)
+   remark #15346: vector dependence: assumed ANTI dependence between prev->data[ic] (137:9) and curr->data[ic] (137:9)
+   remark #25456: Number of Array Refs Scalar Replaced In Loop: 1
+LOOP END
+
+LOOP BEGIN at core.c(146,5)
+   remark #15344: loop was not vectorized: vector dependence prevents vectorization
+   remark #15346: vector dependence: assumed FLOW dependence between curr->data[ic] (152:9) and prev->data[ic] (152:9)
+   remark #15346: vector dependence: assumed ANTI dependence between prev->data[ic] (152:9) and curr->data[ic] (152:9)
+   remark #25456: Number of Array Refs Scalar Replaced In Loop: 1
+LOOP END
+
+    Report from: Code generation optimizations [cg]
+
+core.c(88,1):remark #34051: REGISTER ALLOCATION : [evolve_edges] core.c:88
+
+    Hardware registers
+        Reserved     :    2[ rsp rip]
+        Available    :   39[ rax rdx rcx rbx rbp rsi rdi r8-r15 mm0-mm7 zmm0-zmm15]
+        Callee-save  :    6[ rbx rbp r12-r15]
+        Assigned     :   24[ rax rdx rcx rbx rbp rsi rdi r8-r15 zmm0-zmm8]
+        
+    Routine temporaries
+        Total         :     124
+            Global    :      46
+            Local     :      78
+        Regenerable   :       3
+        Spilled       :       6
+        
+    Routine stack
+        Variables     :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+        Spills        :       8 bytes*
+            Reads     :       1 [1.64e-01 ~ 0.2%]
+            Writes    :       1 [1.64e-01 ~ 0.2%]
+    
+    Notes
+    
+        *Non-overlapping variables and spills may share stack space,
+         so the total stack size might be less than this.
+    
+
+===========================================================================
+
+Begin optimization report for: exchange_init(field *, parallel_data *)
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (exchange_init(field *, parallel_data *)) [5/5=100.0%] core.c(13,1)
+  -> INLINE (MANUAL): (17,11) idx(int, int, int) (isz = 0) (sz = 9)
+  -> EXTERN: (18,5) MPI_Isend(const void *, int, MPI_Datatype, int, int, MPI_Comm, MPI_Request *)
+  -> INLINE (MANUAL): (20,11) idx(int, int, int) (isz = 0) (sz = 9)
+  -> EXTERN: (21,5) MPI_Irecv(void *, int, MPI_Datatype, int, int, MPI_Comm, MPI_Request *)
+  -> INLINE (MANUAL): (24,11) idx(int, int, int) (isz = 0) (sz = 9)
+  -> EXTERN: (25,5) MPI_Isend(const void *, int, MPI_Datatype, int, int, MPI_Comm, MPI_Request *)
+  -> INLINE (MANUAL): (27,11) idx(int, int, int) (isz = 0) (sz = 9)
+  -> EXTERN: (28,5) MPI_Irecv(void *, int, MPI_Datatype, int, int, MPI_Comm, MPI_Request *)
+  -> INLINE (MANUAL): (31,11) idx(int, int, int) (isz = 0) (sz = 9)
+  -> EXTERN: (32,5) MPI_Isend(const void *, int, MPI_Datatype, int, int, MPI_Comm, MPI_Request *)
+  -> INLINE (MANUAL): (34,11) idx(int, int, int) (isz = 0) (sz = 9)
+  -> EXTERN: (35,5) MPI_Irecv(void *, int, MPI_Datatype, int, int, MPI_Comm, MPI_Request *)
+  -> INLINE (MANUAL): (38,11) idx(int, int, int) (isz = 0) (sz = 9)
+  -> EXTERN: (39,5) MPI_Isend(const void *, int, MPI_Datatype, int, int, MPI_Comm, MPI_Request *)
+  -> EXTERN: (42,5) MPI_Irecv(void *, int, MPI_Datatype, int, int, MPI_Comm, MPI_Request *)
+
+
+    Report from: Code generation optimizations [cg]
+
+core.c(13,1):remark #34051: REGISTER ALLOCATION : [exchange_init] core.c:13
+
+    Hardware registers
+        Reserved     :    2[ rsp rip]
+        Available    :   39[ rax rdx rcx rbx rbp rsi rdi r8-r15 mm0-mm7 zmm0-zmm15]
+        Callee-save  :    6[ rbx rbp r12-r15]
+        Assigned     :   12[ rax rdx rcx rsi rdi r8-r11 r13-r15]
+        
+    Routine temporaries
+        Total         :     116
+            Global    :       9
+            Local     :     107
+        Regenerable   :      16
+        Spilled       :       3
+        
+    Routine stack
+        Variables     :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+        Spills        :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+    
+    Notes
+    
+        *Non-overlapping variables and spills may share stack space,
+         so the total stack size might be less than this.
+    
+
+===========================================================================
